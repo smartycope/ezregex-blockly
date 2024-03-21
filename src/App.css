@@ -1,12 +1,41 @@
 div.ezregex{
-    border: 1px solid gray;
     display: flex;
-    justifyContent: space-between;
+    justify-content: space-between;
+    /* width: fit-content; */
+    /* width: fit-content; */
+    /* width: calc(100% + 40%); */
+    /* width: 150%; */
     width: fit-content;
+    /* display: block; */
+    /* overflow-x: auto; */
+    /*max-width: fit-content; */
+}
+
+/* Make all the stuff inside it have a margin, but not the container itself */
+div.ezregex-inner > * {
+    margin: 3%;
+}
+
+div.ezregex-inner{
+    /* border: 1px solid gray; */
+    display: flex;
+    align-items: center; /* Centers items vertically */
+    justify-content: center; /* Centers items horizontally */
+    height: 50px;
+    background-color: #24A18E;
+    /* width: 40%; */
+    /* width: fit-content; */
+    /* width: calc(100% + 40%); */
+    /* max-width: fit-content; */
+    white-space: nowrap;
+    margin: 0;
 }
 
 div.default-drop-ezregex{
-    width: 40px;
+    width: 30px;
+    height: 30px;
+    /* width: max(fit-content, 100px); */
+    /* height: max(fit-content, 100px); */
 }
 
 div.drop-ezregex-side{
@@ -20,6 +49,25 @@ div.drop-ezregex{
 div.svgs{
     border: 1px solid gray;
     display: flex;
-    justifyContent: space-between;
+    justify-content: space-between;
     width: fit-content;
+}
+img.side{
+    height: 50px;
+}
+
+input[type=number]{
+    border-radius: 20px;
+    width: min-content;
+    height: min-content;
+    font-size: large;
+    /* margin-left: 10%; */
+    /* margin: 5% */
+    /* padding-l */
+    /* padding: 10% */
+
+}
+
+body{
+    background-color: #202020;
 }

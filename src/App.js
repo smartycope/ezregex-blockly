@@ -6,14 +6,6 @@ import { useState } from 'react';
 
 // TODO: nested chains don't all move together
 
-function IntSelector(){
-    return(
-        <input type='number' style={{
-            width: '50px',
-        }}/>
-    )
-}
-
 function EZRegex({reset=null, children}) {
     const [, drag, ] = useDrag(() => ({
         type: 'ezregex',
@@ -53,31 +45,57 @@ function DropEZRegex({children=<div className='default-drop-ezregex'/>, side=fal
         })
     }))
 
-    if (side){
+    // if (side){
+    //     return (
+    //         <div ref={drop} className='drop-ezregex-side' style={{
+    //             // backgroundColor: isOver ? (canDrop ? 'green' : 'red') : 'lightgreen',
+    //         }}>
+    //             {nested}
+    //         </div>
+    //     )
+    // } else {
         return (
-            <div ref={drop} className='drop-ezregex-side' style={{
+            <div ref={drop} className='drop-ezregex' style={{
                 // backgroundColor: isOver ? (canDrop ? 'green' : 'red') : 'lightgreen',
             }}>
                 {nested}
             </div>
         )
-    } else {
-        return (
-            <div ref={drop} className='drop-ezregex' style={{
-                backgroundColor: isOver ? (canDrop ? 'green' : 'red') : 'lightgreen',
-            }}>
+    // }
+}
+
+function DropEZRegexInline(){
+    const defaultNested = <div className='default-drop-ezregex'/>
+    const [nested, setNested] = useState(defaultNested)
+    const [{ canDrop, isOver}, drop] = useDrop(() => ({
+        accept: 'ezregex',
+        drop: (item, monitor) => {
+            setNested(<EZRegex reset={() => setNested(defaultNested)}> {item.children} </EZRegex>)
+        },
+        collect: (monitor) => ({
+            isOver: monitor.isOver(),
+            canDrop: monitor.canDrop(),
+        })
+    }))
+
+    return (
+        <div ref={drop} id='drop-ezregex-inline' style={{
+            backgroundColor: isOver ? (canDrop ? 'green' : 'red') : 'lightgreen',
+        }}>
+            <img src='right.svg' id='drop-ezregex-inline-connector' alt=''/>
+            <div id='nested-ezregex'>
                 {nested}
             </div>
-        )
-    }
+        </div>
+    )
 }
 
 function MatchAmt(){
     return (
         <EZRegex>
             Match Amount:
-            <IntSelector/>
-            <DropEZRegex/>
+            <input type='number'/>
+            <DropEZRegexInline/>
         </EZRegex>
     )
 }

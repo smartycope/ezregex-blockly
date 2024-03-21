@@ -1,14 +1,7 @@
 div.ezregex{
-    display: flex;
-    justify-content: space-between;
-    /* width: fit-content; */
-    /* width: fit-content; */
-    /* width: calc(100% + 40%); */
-    /* width: 150%; */
-    width: fit-content;
-    /* display: block; */
-    /* overflow-x: auto; */
-    /*max-width: fit-content; */
+    display: inline-flex;
+    z-index: 0;
+    /* margin: 20px; */
 }
 
 /* Make all the stuff inside it have a margin, but not the container itself */
@@ -17,35 +10,65 @@ div.ezregex-inner > * {
 }
 
 div.ezregex-inner{
-    /* border: 1px solid gray; */
-    display: flex;
-    align-items: center; /* Centers items vertically */
-    justify-content: center; /* Centers items horizontally */
+    display: inline-flex;
+    padding-left: 10%;
+    padding-right: 10%;
+    align-items: center;
     height: 50px;
     background-color: #24A18E;
-    /* width: 40%; */
-    /* width: fit-content; */
-    /* width: calc(100% + 40%); */
-    /* max-width: fit-content; */
     white-space: nowrap;
-    margin: 0;
 }
 
 div.default-drop-ezregex{
     width: 30px;
     height: 30px;
-    /* width: max(fit-content, 100px); */
-    /* height: max(fit-content, 100px); */
 }
 
 div.drop-ezregex-side{
     width: min-content;
 }
 div.drop-ezregex{
-    border: 5px ridge lightgray;
     width: max(fit-content, 50px);
     height: max(fit-content, 50px);
 }
+
+#drop-ezregex-inline{
+    /* border: 5px ridge lightgray; */
+    border-top: 0px solid lightgray;
+    border-bottom: 0px solid lightgray;
+    /* margin-left: 20; */
+    /* margin: 20px; */
+
+    /* padding-bottom; */
+    /* background-color: gray; */
+    width: 90px;
+    height: 100%;
+    /* height: 0; */
+    /* padding-bottom: 50%; */
+    /* margin-top: 10px; */
+    /* margin-bottom: 10px; */
+    /* height: fit-content; */
+    /* width: max(fit-content, 40px); */
+    /* height: max(fit-content, 40px); */
+}
+
+#drop-ezregex-inline-connector{
+    height: 50px;
+}
+
+#nested-ezregex{
+    display: inline-flex;
+    /* padding-right: 10px; */
+    margin-left: -10px;
+    /* background-position: top; */
+    /* padding-left: 10%; */
+    /* padding-right: 10%; */
+    /* align-items: center; */
+    /* height: 50px; */
+    /* background-color: #24A18E; */
+    /* white-space: nowrap; */
+}
+
 div.svgs{
     border: 1px solid gray;
     display: flex;
@@ -54,13 +77,17 @@ div.svgs{
 }
 img.side{
     height: 50px;
+    /* position: fixed; */
+    z-index: -1;
 }
 
 input[type=number]{
     border-radius: 20px;
-    width: min-content;
+    /* width: min-content; */
+    width: 40px;
     height: min-content;
     font-size: large;
+
     /* margin-left: 10%; */
     /* margin: 5% */
     /* padding-l */
@@ -70,4 +97,13 @@ input[type=number]{
 
 body{
     background-color: #202020;
+}
+
+img{
+    /* background-position: right bottom; */
+    /* position: absolute; */
+    /* position: relative; */
+    /* clear: both; */
+    /* z-index: -1; */
+    /* height: 1000px; */
 }

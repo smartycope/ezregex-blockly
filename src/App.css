@@ -28,8 +28,12 @@ div.drop-ezregex-side{
     width: min-content;
 }
 div.drop-ezregex{
-    width: max(fit-content, 50px);
-    height: max(fit-content, 50px);
+    position: absolute;
+    width: 100px;
+    background-color: rgba(0, 255, 0, .5);
+    /* width: max(fit-content, 50px); */
+    /* width: 100px; */
+    /* height: max(fit-content, 50px); */
 }
 
 #drop-ezregex-inline{

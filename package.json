@@ -1,6 +1,7 @@
 {
   "name": "ezregex-blockly",
   "version": "1.0.0",
+  "homepage": "https://smartycope.github.io/ezregex-blockly",
   "description": "A sample app using Blockly",
   "main": "index.js",
   "private": true,
@@ -8,7 +9,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "keywords": [
     "blockly"
@@ -17,6 +20,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "css-loader": "^6.7.1",
+    "gh-pages": "^6.1.1",
     "html-webpack-plugin": "^5.5.0",
     "source-map-loader": "^4.0.1",
     "style-loader": "^3.3.1",

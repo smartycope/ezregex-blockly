@@ -1,8 +1,8 @@
 {
   "name": "ezregex-blockly",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "homepage": "https://smartycope.github.io/ezregex-blockly",
-  "description": "A sample app using Blockly",
+  "description": "A readable and intuitive way to generate Regular Expressions",
   "main": "index.js",
   "private": true,
   "scripts": {

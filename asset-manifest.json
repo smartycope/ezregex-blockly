@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/ezregex-blockly/static/css/main.b73962e1.css",
+    "main.js": "/ezregex-blockly/static/js/main.f244ed93.js",
+    "index.html": "/ezregex-blockly/index.html",
+    "main.b73962e1.css.map": "/ezregex-blockly/static/css/main.b73962e1.css.map",
+    "main.f244ed93.js.map": "/ezregex-blockly/static/js/main.f244ed93.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b73962e1.css",
+    "static/js/main.f244ed93.js"
+  ]
+}

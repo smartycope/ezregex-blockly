@@ -156,10 +156,18 @@ export default function BlocklyComponent({setToUpdate, setCode, replaceMode}){
         const blk = workspace.newBlock('replacementCompiler')
         blk.setDeletable(false)
         blk.contextMenu = false
+        // Move it over so it's not on top of the other compiler
+        blk.moveBy(150, 0)
         // workspace.centerOnBlock(blk.id)
         // I have NO IDEA why this is necissary, but it makes it work
         save(workspace)
         load(workspace)
+    }
+    // Remove the replacementCompiler if we're not in replacement mode
+    if (!replaceMode){
+        workspace?.getBlocksByType('replacementCompiler').forEach(element => {
+            element.dispose()
+        });
     }
 
     // const codeDiv = document.getElementById('generatedCode').firstChild;

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+ <html>
+   <head>
+     <meta charset="utf-8" />
+     <title>EZRegex Blocks</title>
+     <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css" />
+     <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+     <py-config>
+        <!-- packages = ["ezregex"] -->
+    </py-config>
+   </head>
+   <body>
+    <pre id="generatedCode"><code id="watchme"></code></pre>
+    <pre id="regex"><code></code></pre>
+
+    <div id="pageContainer">
+      <div id="blocklyDiv"></div>
+    </div>
+   </body>
+   <!-- <script type="py">
+        from sys import version
+        print('python version', version)
+
+        from pyscript import window, document, when
+
+        import ezregex as er
+        from ezregex import *
+        print('ezregex version', er.__version__)
+
+        input = document.querySelector('#watchme')
+        output = document.querySelector('#regex')
+
+        @when('custom', '#watchme')
+        def update(event=None):
+            if len(input.innerHTML):
+                firstLine = input.innerHTML.split('<br>')[-1]
+                result = eval(firstLine)
+                try:
+                    data = result._matchJSON()
+                except Exception as err:
+                    print("Error when compiling:", err)
+                    output.innerText = str(result)
+                else:
+                    output.innerHTML = f"Looking for matches in\n{data['stringHTML']}\nUsing regex\n{data['regex']}"
+
+        update()
+    </script> -->
+ </html>

@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="A readable and intuitive way to generate Regular Expressions"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
@@ -24,10 +24,25 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <title>EZRegex</title>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css" />
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    <span id="js2py"></span>
+    <span id="py2js"></span>
+    <script type="py" src="main.py" config='{
+        "js_modules": { "main": {
+            "communication.js": "communication"
+        }},
+        "files": {     "/ezregex-1.7.0-py3-none-any.whl": "" },
+        "packages": [ "./ezregex-1.7.0-py3-none-any.whl" ]
+    }'></script>
+    <h1>EZRegex</h1>
+    <!-- Loaded by Python script -->
+    <h6 id="version-caption">Loading...</h6>
+    <h6>Go to original version at <a href="https://ezregex.org/">ezregex.org</a></h6>
     <div id="root"></div>
     <!--
       This HTML file is a template.

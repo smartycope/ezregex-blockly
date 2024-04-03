@@ -1,25 +1,45 @@
 {
-  "name": "ezregex-dnd",
-  "version": "0.1.0",
+  "name": "ezregex-blockly",
+  "version": "1.0.0",
+  "description": "A sample app using Blockly",
+  "main": "index.js",
   "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "immutability-helper": "^3.1.1",
-    "react": "^18.2.0",
-    "react-dnd": "^16.0.1",
-    "react-dnd-html5-backend": "^16.0.1",
-    "react-dnd-touch-backend": "^16.0.1",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
-  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
+  },
+  "keywords": [
+    "blockly"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "css-loader": "^6.7.1",
+    "html-webpack-plugin": "^5.5.0",
+    "source-map-loader": "^4.0.1",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.76.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.11.1"
+  },
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "blockly": "^10.4.3",
+    "core-js": "^3.36.1",
+    "immutability-helper": "^3.1.1",
+    "lodash.clonedeep": "^4.5.0",
+    "react": "^18.2.0",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-dnd-touch-backend": "^16.0.1",
+    "react-dom": "^18.2.0",
+    "react-radio-buttons": "^1.2.2",
+    "react-scripts": "^5.0.1",
+    "web-vitals": "^2.1.4"
   },
   "eslintConfig": {
     "extends": [

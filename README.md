@@ -4,9 +4,15 @@ This is the 2nd (2.5th?) version of the frontend for the [EZRegex library](https
 This repo is (will be) hosted on [ezregex.org](https://ezregex.org/)
 
 ## Running Locally
+Run locally for development
 ```bash
 npm start
 ```
+Deploy to the site
+```bash
+npm run deploy
+```
+
 
 ## Structure
 This uses a really clever (if I don't say so myself) method of using a Python library (EZRegex) in the browser. It uses [py-script](https://pyscript.net/) to load Python client-side, import ezregex, and communicate with the React script.

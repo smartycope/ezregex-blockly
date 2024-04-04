@@ -9,6 +9,7 @@ import ezregex as er
 from ezregex import *
 print('ezregex version', er.__version__)
 
+error = window.console.error
 
 patternInput = document.querySelector('#patternInput').firstChild
 # textInput = document.querySelector('#textInput')
@@ -33,13 +34,20 @@ def formatInput2code(s):
 
 
 def run_code(pattern):
-    successful = False
     # Run the code, get the var, and get the JSON search info
     # Set the variable before the end of the last line so we can do variables in the text_area
     try:
         local = {}
         exec(formatInput2code(pattern), globals(), local)
         pattern = local['pattern']
+        replacement = local.get('replacement')
+
+        if isinstance(pattern, str):
+            pattern = literal(pattern)
+
+        if isinstance(replacement, str):
+            replacement = literal(replacement)
+
     except TypeError as err:
         err_msg = 'Invalid parameters in EZRegex pattern:'
         err_msg += '\n' + str(err.with_traceback(None))
@@ -49,57 +57,41 @@ def run_code(pattern):
     except Exception as err:
         err_msg = str(err.with_traceback(None))
     else:
-        successful = True
+        return pattern, replacement
 
-    if not successful: print(err_msg)
+    error(err_msg)
+    return None, None
 
-    return pattern if successful else None
 
 
 @when('custom', '#js2py')
 def recieve_data(event):
     signal, data = event.detail
-    # print(f'recieved data of type {type(data)}:')
-    # print(data)
     data = json.loads(str(data))
+    print(f'Py script loaded data of type {type(data)}:')
+    print(data)
     match signal:
         case "update":
             update(*data)
         case _:
-            print(f"Unknown signal recieved from js2py element: `{signal}` with data:\n{data}")
+            error(f"Python script recieved unknown signal from js2py element: `{signal}` with data:\n{data}")
 
 def update(pattern, text=None):
-    # textOutput = document.querySelector('#textOutput')
-    # print(textOutput)
-    # if pattern is None:
-    #     pattern = patternInput.innerText
     print('Py is using text:', text)
 
     if len(pattern):
-        # firstLine = pattern.split('<br>')[-1]
-        result = run_code(pattern)
-        if result is not None:
+        pattern, replacement = run_code(pattern)
+        if pattern is not None:
             try:
-                data = result._matchJSON(text)
+                data = pattern._matchJSON(text)
             except Exception as err:
-                # isError.innerText = 'true'
-                print("Handled error when compiling:", err)
-                # regexOutput.innerText = str(result)
-                # send_data('response', )
-                # print('sent data')
+                error("Python script handled error when compiling EZRegex pattern:\n", str(err))
             else:
-                # isError.innerText = 'false'
-                # textInput.value = data['string']
-                # print('regexOutput', regexOutput)
-                # print('textOutput', textOutput)
-                # regexOutput.innerHTML = data['regex']
-                # textOutput.innerHTML = data['stringHTML']
                 send_data('response', json.dumps(data))
-                # print('sent data')
         else:
             send_data('error', 'Could not compile pattern')
 
-update(patternInput.innerHTML.split('<br/>'))
+update(patternInput.innerText)
 
 version_caption = document.querySelector('#version-caption')
 version_caption.innerText = f'Copeland Carter | v{er.__version__}'

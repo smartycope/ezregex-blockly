@@ -1,6 +1,6 @@
 {
   "name": "ezregex-blockly",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://ezregex.org",
   "description": "A readable and intuitive way to generate Regular Expressions",
   "main": "index.js",

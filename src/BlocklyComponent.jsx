@@ -84,7 +84,7 @@ Blockly.Extensions.register('one_var_at_a_time', function() {
 Blockly.Extensions.register('remove_plus', function() { this.removePlus = true })
 
 
-export default function BlocklyComponent({setToUpdate, setCode, replaceMode}){
+export default function BlocklyComponent({setToUpdate, setCodes, replaceMode}){
     const blocklyDiv = useRef()
     const [workspace, setWorkspace] = useState(null)
 
@@ -110,11 +110,9 @@ export default function BlocklyComponent({setToUpdate, setCode, replaceMode}){
         // generated code from the workspace, and evals the code.
         const runCode = () => {
             const code = ezregexGenerator.workspaceToCode(ws);
-            // update(code)
-            setCode(code)
+            setCodes(code)
             setToUpdate(true)
         };
-
 
         // Load the initial state from storage and run the code.
         load(ws);
@@ -179,11 +177,6 @@ export default function BlocklyComponent({setToUpdate, setCode, replaceMode}){
     // )
 
     return (<div id="blocklyArea" style={{position: "relative"}}>
-        {/* <h2>test</h2> */}
-        {/* <div style={{position:"absolute"}}> */}
-            {/* <div id="pageContainer"> */}
                 <div ref={blocklyDiv} id="blocklyDiv"/>
-            {/* </div> */}
-        {/* </div> */}
     </div>);
 }

@@ -1,48 +1,121 @@
-import React, { useEffect, useRef, useState } from 'react';
+/* eslint-disable default-case */
+import React, { useEffect, useState } from 'react';
 import BlocklyComponent from "./BlocklyComponent"
 import { send_js2py } from './communication';
-// import { RadioButton, RadioGroup, ReversedRadioButton } from 'react-radio-buttons';
+
+
+function InputPicker({setInputType}){
+    const handleChange = e => setInputType(e.target.value)
+    return <span>
+            <label htmlFor="input-type-selector">Input method:</label>
+            <select name="input-type" id='input-type-selector' required onChange={handleChange}>
+                <option value="blocks">Blocks</option>
+                <option value="manual">Manual</option>
+                <option value="generate">Auto-Generate</option>
+            </select>
+            <br/>
+        </span>
+}
 
 function ModePicker({setMode}){
     const handleChange = e => setMode(e.target.value)
-    return <div id="radio-group">
-        <div>
-            <input type="radio" id="Search" name="mode" value="search" defaultChecked onChange={handleChange}/>
-            <label htmlFor="Search">Search</label>
-        </div>
+    return <>
+        <label htmlFor="radio-group">Mode</label>
+        <div id="radio-group">
+            <div>
+                <input type="radio" id="Search" name="mode" value="search" defaultChecked onChange={handleChange}/>
+                <label htmlFor="Search">Search</label>
+            </div>
 
-        <div>
-            <input type="radio" id="replace" name="mode" value="replace" onChange={handleChange}/>
-            <label htmlFor="replace">Replace</label>
-        </div>
+            <div>
+                <input type="radio" id="replace" name="mode" value="replace" onChange={handleChange}/>
+                <label htmlFor="replace">Replace</label>
+            </div>
 
-        <div>
-            <input type="radio" id="Split" name="mode" value="split" onChange={handleChange}/>
-            <label htmlFor="Split">Split</label>
+            <div>
+                <input type="radio" id="Split" name="mode" value="split" onChange={handleChange}/>
+                <label htmlFor="Split">Split</label>
+            </div>
         </div>
-    </div>
-    // horizontal
-    // return <RadioGroup onChange={ e => setMode(e) } horizontal id="radio-group">
-    //     <RadioButton className="radio" padding={8} value="search">  Search  </RadioButton>
-    //     <RadioButton className="radio" padding={8} value="replace"> Replace </RadioButton>
-    //     <RadioButton className="radio" padding={8} value="split">   Split   </RadioButton>
-    // </RadioGroup>
+    </>
 }
 
-function PatternInput({text, replace=false}){
-    return <pre id={replace ? "replaceInput" : "patternInput"}><code>{text}</code></pre>
+function PatternInput({text, setCode, setToUpdate, setInputType, blockly=false}){
+    const props = {
+        id: 'patternInput',
+        autoComplete: 'off',
+        autoCorrect: 'off',
+        autoCapitalize: 'off',
+        wrap: "soft",
+        rows: text?.split('\n').length,
+    }
+
+    const label = <span id='spread'>
+        <label htmlFor="patternInput">EZRegex Pattern:</label>
+        <InputPicker setInputType={setInputType}/>
+    </span>
+
+    if (blockly)
+        return <>
+            {label}
+            <textarea {...props}
+                value={text.length ? text : undefined}
+                readOnly={true}
+            ></textarea>
+        </>
+    else
+        return <>
+            {label}
+            <textarea {...props}
+                onChange={e => {setCode(e.target.value); setToUpdate(true)}}
+                defaultValue={text.length ? text : undefined}
+            ></textarea>
+        </>
+}
+
+function ReplacementInput({text, setReplaceCode, setToUpdate, blockly=false}){
+    const props = {
+        id: 'replacementInput',
+        autoComplete: 'off',
+        autoCorrect: 'off',
+        autoCapitalize: 'off',
+        wrap: "soft",
+        rows: text?.split('\n').length,
+    }
+    const label = <label htmlFor="replacementInput">Replacement EZRegex Pattern:</label>
+
+    if (blockly)
+        return <>
+            {label}
+            <textarea {...props}
+                value={text.length ? text : undefined}
+                readOnly={true}
+            ></textarea>
+        </>
+    else
+        return <>
+            {label}
+            <textarea {...props}
+                onChange={e => {setReplaceCode(e.target.value); setToUpdate(true)}}
+                defaultValue={text.length ? text : undefined}
+            ></textarea>
+        </>
 }
 
 function TextInput({generated, text, setText, setToUpdate}){
-    return <textarea
-            id='textInput'
-            placeholder={text.length ? text : (generated ? generated : "Leave empty to generate an example")}
-            onChange={e => { setText(e.target.value); setToUpdate(true) }}
-            autoComplete='off'
-            autoCorrect='off'
-            autoCapitalize='off'
-            defaultValue={text.length ? text : undefined}
-        ></textarea>
+    return <>
+            <label htmlFor="textInput">String to match against:</label>
+            <textarea
+                id='textInput'
+                rows={text?.split('\n').length}
+                placeholder={text.length ? text : (generated ? generated : "Leave empty to generate an example")}
+                onChange={e => { setText(e.target.value); setToUpdate(true) }}
+                autoComplete='off'
+                autoCorrect='off'
+                autoCapitalize='off'
+                defaultValue={text.length ? text : undefined}
+            ></textarea>
+        </>
 }
 
 function TextOutput({html}){
@@ -84,12 +157,14 @@ function Matches({matches}){
     </>))
 }
 
-function App() {
+export default function App() {
     const [code, setCode] = useState('')
     const [replaceCode, setReplaceCode] = useState('')
     const [data, setData] = useState(null)
     const [text, setText] = useState('')
+    const [error, setError] = useState(null)
     const [mode, setMode] = useState('search')
+    const [inputType, setInputType] = useState('blocks')
     const [needsUpdate, setToUpdate] = useState(true)
 
     const showMatches = data !== null && code.length
@@ -101,17 +176,33 @@ function App() {
             switch (e.detail[0]){
                 case "response":
                     setData(JSON.parse(e.detail[1]))
+                    setError(null)
                     break
                 case "error":
-                    console.log('Recieved error from Python script: ' + e.detail[1])
+                    // console.log('Recieved error from Python script: ' + e.detail[1])
+                    setError(e.detail[1])
                     break
                 default:
                     console.error(`Recieved unknown signal from py2js: ${e.detail[0]}`)
+                    setError('Internal Error')
             }
         }
         py2js.addEventListener('custom', func)
         return () => py2js.removeEventListener('custom', func)
     }, [])
+
+    function setCodes(rawCode){
+        const parts = rawCode.split(/^replacement = (.+)\n/m)
+        // console.log(parts);
+
+        if (parts.length === 1){
+            setCode(rawCode)
+            setReplaceCode('')
+        } else if (parts.length === 3){
+            setCode(parts[0] + parts[2])
+            setReplaceCode('pattern = ' + parts[1])
+        }
+    }
 
     // This needs to be a state, and not an update function that we pass the blockly component, because
     // the blockly component is set up, and thus passed the function that updates everything, in a
@@ -120,19 +211,41 @@ function App() {
     // those changes aren't reflected in the blockly component cause it doesn't re-pass the updated
     // function. Yes this took me a while to figure out.
     if (needsUpdate){
-        send_js2py('update', JSON.stringify([code, text]))
+        if (mode === 'replace')
+            send_js2py('update', JSON.stringify([code, replaceCode, text]))
+        else
+            send_js2py('update', JSON.stringify([code, null, text]))
         setToUpdate(false)
     }
 
+    var input
+    switch (inputType){
+        case "blocks":
+            input = <>
+                    <BlocklyComponent setCodes={setCodes} text={text} setToUpdate={setToUpdate} replaceMode={mode === 'replace'}/>
+                    <PatternInput text={code} blockly={true} setInputType={setInputType}/>
+                </>
+            break
+        case "manual":
+            input = <PatternInput text={code} setCode={setCode} setToUpdate={setToUpdate} setInputType={setInputType}/>
+            break
+        case "generate":
+            input = <p>Auto-Generation is not supported in the updated website yet. It is in the old version: <a href="https://ezregex.streamlit.app/">ezregex.streamlit.app</a></p>
+            break
+    }
 
     return (
         <div className="App">
             <ModePicker setMode={setMode}/>
-            <PatternInput text={code}/>
-            <BlocklyComponent setCode={setCode} text={text} setToUpdate={setToUpdate} replaceMode={mode === 'replace'}/>
+            {input}
             <TextInput generated={data?.string} text={text} setText={setText} setToUpdate={setToUpdate}/>
-            {(mode === 'replace') && <PatternInput replace={true} text={replaceCode}/>}
-            {showMatches && <>
+            {(mode === 'replace') && <ReplacementInput
+                text={replaceCode}
+                setReplaceCode={setReplaceCode}
+                setToUpdate={setToUpdate}
+                blockly={inputType === "blockly"}
+            />}
+            {(showMatches && !error) && <>
                 <hr/>
                 <h2>Looking for matches in:</h2>
                 <TextOutput html={data?.stringHTML}/>
@@ -141,8 +254,10 @@ function App() {
                 <h2>Matches:</h2>
                 <Matches matches={data?.matches}/>
             </>}
+            {error && <>
+                <hr/>
+                <p id='error-text'>{error}</p>
+            </>}
         </div>
     );
 }
-
-export default App;

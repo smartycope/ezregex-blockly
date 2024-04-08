@@ -11,7 +11,8 @@ print('ezregex version', er.__version__)
 
 error = window.console.error
 
-patternInput = document.querySelector('#patternInput').firstChild
+patternInput = document.querySelector('#patternInput')
+replacementInput = document.querySelector('#replacementInput')
 # textInput = document.querySelector('#textInput')
 # textOutput = document.querySelector('#textOutput')
 # regexOutput = document.querySelector('#regexOutput')
@@ -33,65 +34,92 @@ def formatInput2code(s):
     return '\n'.join(lines)
 
 
-def run_code(pattern):
+def run_code(pattern, replacement=False):
+    error: Exception
+    prefix = 'Error'
     # Run the code, get the var, and get the JSON search info
     # Set the variable before the end of the last line so we can do variables in the text_area
     try:
         local = {}
         exec(formatInput2code(pattern), globals(), local)
         pattern = local['pattern']
-        replacement = local.get('replacement')
 
         if isinstance(pattern, str):
             pattern = literal(pattern)
 
-        if isinstance(replacement, str):
-            replacement = literal(replacement)
-
     except TypeError as err:
-        err_msg = 'Invalid parameters in EZRegex pattern:'
-        err_msg += '\n' + str(err.with_traceback(None))
+        prefix = "Invalid parameters"
+        error = err
     except SyntaxError as err:
-        err_msg = 'Invalid syntax in EZRegex pattern:'
-        err_msg += '\n' + str(err.with_traceback(None))
+        prefix = 'Invalid syntax'
+        error = err
     except Exception as err:
-        err_msg = str(err.with_traceback(None))
+        error = err
     else:
-        return pattern, replacement
+        return pattern
 
-    error(err_msg)
-    return None, None
+    if replacement:
+        err_msg = prefix + " in replacement pattern:"
+    else:
+        err_msg = prefix + " in pattern:"
+
+    err_msg += '\n' + str(error.with_traceback(None))
+
+    send_data('error', err_msg)
+    return None
 
 
-
+print
 @when('custom', '#js2py')
 def recieve_data(event):
     signal, data = event.detail
     data = json.loads(str(data))
-    print(f'Py script loaded data of type {type(data)}:')
-    print(data)
+    # print(f'Py script loaded data of type {type(data)}:')
+    # print(data)
     match signal:
         case "update":
             update(*data)
         case _:
             error(f"Python script recieved unknown signal from js2py element: `{signal}` with data:\n{data}")
 
-def update(pattern, text=None):
-    print('Py is using text:', text)
+def update(pattern, replacement=None, text=None):
+    # print('Py is using text:', text)
 
     if len(pattern):
-        pattern, replacement = run_code(pattern)
+        pattern = run_code(pattern)
         if pattern is not None:
             try:
                 data = pattern._matchJSON(text)
             except Exception as err:
                 error("Python script handled error when compiling EZRegex pattern:\n", str(err))
+                send_data('error', str(err))
             else:
                 send_data('response', json.dumps(data))
         else:
             send_data('error', 'Could not compile pattern')
 
-update(patternInput.innerText)
+    if replacement and len(replacement):
+        replacement = run_code(replacement, replacement=True)
+        if replacement is not None:
+            try:
+                data = replacement._matchJSON(text)
+            except Exception as err:
+                error("Python script handled error when compiling EZRegex pattern:\n", str(err))
+                send_data('error', 'In replacement pattern: ' + str(err))
+            else:
+                send_data('response', json.dumps(data))
+        else:
+            send_data('error', 'Could not compile replacement pattern')
 
-version_caption = document.querySelector('#version-caption')
-version_caption.innerText = f'Copeland Carter | v{er.__version__}'
+
+if patternInput:
+    update(patternInput.value, replacementInput.value if replacementInput else None)
+else:
+    error('Warning: Python script couldnt find #patternInput')
+
+
+try:
+    version_caption = document.querySelector('#version-caption')
+    version_caption.innerText = f'Copeland Carter | v{er.__version__}'
+except Exception as err:
+    error('Python Script: Somehow we couldnt find #version-caption')

@@ -41,7 +41,7 @@ def run_code(pattern, replacement=False):
     # Set the variable before the end of the last line so we can do variables in the text_area
     try:
         local = {}
-        exec(formatInput2code(pattern), globals(), local)
+        exec(pattern, globals(), local)
         pattern = local['pattern']
 
         if isinstance(pattern, str):

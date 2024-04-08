@@ -192,15 +192,16 @@ export default function App() {
     }, [])
 
     function setCodes(rawCode){
-        const parts = rawCode.split(/^replacement = (.+)\n/m)
-        // console.log(parts);
+        const match = rawCode.match(/^replacement = (.+)\n?/m)
 
-        if (parts.length === 1){
+        if (match === null){
             setCode(rawCode)
             setReplaceCode('')
-        } else if (parts.length === 3){
-            setCode(parts[0] + parts[2])
-            setReplaceCode('pattern = ' + parts[1])
+        } else {
+            // const [full, group] = match
+            // console.log(rawCode.slice(match.index, match[0].length))
+            setCode((rawCode.slice(0, match.index) + rawCode.slice(match.index + match[0].length, rawCode.length)).trim())
+            setReplaceCode('pattern = ' + match[1])
         }
     }
 
@@ -245,7 +246,21 @@ export default function App() {
                 setToUpdate={setToUpdate}
                 blockly={inputType === "blockly"}
             />}
-            {(showMatches && !error) && <>
+            {
+                error ? <>
+                    <hr/>
+                    <p id='error-text'>{error}</p>
+                </> : showMatches && <>
+                    <hr/>
+                    <h2>Looking for matches in:</h2>
+                    <TextOutput html={data?.stringHTML}/>
+                    <h2>Using regex:</h2>
+                    <RegexDisplay regex={data?.regex}/>
+                    <h2>Matches:</h2>
+                    <Matches matches={data?.matches}/>
+                </>
+            }
+            {/* {(showMatches && !error) && <>
                 <hr/>
                 <h2>Looking for matches in:</h2>
                 <TextOutput html={data?.stringHTML}/>
@@ -254,10 +269,7 @@ export default function App() {
                 <h2>Matches:</h2>
                 <Matches matches={data?.matches}/>
             </>}
-            {error && <>
-                <hr/>
-                <p id='error-text'>{error}</p>
-            </>}
+            {error && } */}
         </div>
     );
 }

@@ -35,7 +35,6 @@ def formatInput2code(s):
     lines.append('\n_rtn = '  + lines.pop(-1))
     return '\n'.join(lines)
 
-
 def run_code(pattern, replacement=False):
     error: Exception
     prefix = 'Error'
@@ -87,41 +86,44 @@ def recieve_data(event):
         case _:
             error(f"Python script recieved unknown signal from js2py element: `{signal}` with data:\n{data}")
 
-def update(pattern, replacement=None, text=None):
+def update(pattern, replacement_pattern=None, text=None):
     # print('Py is using text:', text)
-
+    pattern = None
+    replacement = None
     if len(pattern):
         pattern = run_code(pattern)
-        if pattern is not None:
-            try:
-                data = pattern._matchJSON(text)
-            except Exception as err:
-                error("Python script handled error when compiling EZRegex pattern:\n", str(err))
-                send_data('error', str(err))
-            else:
-                send_data('response', json.dumps(data))
-        else:
-            send_data('error', 'Could not compile pattern')
 
-    if replacement and len(replacement):
-        replacement = run_code(replacement, replacement=True)
-        if replacement is not None:
-            try:
-                data = replacement._matchJSON(text)
-            except Exception as err:
-                error("Python script handled error when compiling EZRegex pattern:\n", str(err))
-                send_data('error', 'In replacement pattern: ' + str(err))
-            else:
-                send_data('response', json.dumps(data))
+    if replacement_pattern and len(replacement_pattern):
+        replacement = run_code(replacement_pattern, replacement=True)
+
+    if pattern is not None:
+        try:
+            pattern_data = pattern._matchJSON(text)
+        except Exception as err:
+            error("Python script handled error when compiling EZRegex pattern:\n", str(err))
+            send_data('error', str(err))
+            return
+    else:
+        send_data('error', 'Could not compile pattern')
+        return
+
+
+    if replacement is not None:
+        try:
+            replacement_data = replacement._matchJSON(text)
+        except Exception as err:
+            error("Python script handled error when compiling EZRegex pattern:\n", str(err))
+            send_data('error', 'In replacement pattern: ' + str(err))
         else:
-            send_data('error', 'Could not compile replacement pattern')
+            send_data('response', json.dumps(replacement_data))
+    elif len(replacement_pattern):
+        send_data('error', 'Could not compile replacement pattern')
 
 
 if patternInput:
     update(patternInput.value, replacementInput.value if replacementInput else None)
 else:
     error('Warning: Python script couldnt find #patternInput')
-
 
 try:
     version_caption = document.querySelector('#version-caption')

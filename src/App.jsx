@@ -280,16 +280,11 @@ export default function App() {
                     <Matches matches={data?.matches}/>
                 </>
             }
-            {/* {(showMatches && !error) && <>
-                <hr/>
-                <h2>Looking for matches in:</h2>
-                <TextOutput html={data?.stringHTML}/>
-                <h2>Using regex:</h2>
-                <RegexDisplay regex={data?.regex}/>
-                <h2>Matches:</h2>
-                <Matches matches={data?.matches}/>
+            {(mode === 'replace' && !error) && <>
+                <hr />
+                <h2>Replaced String:</h2>
+                <pre>{data?.replaced}</pre>
             </>}
-            {error && } */}
         </div>
     );
 }

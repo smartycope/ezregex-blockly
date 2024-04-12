@@ -1,24 +1,26 @@
+import glob
 from sys import version
 print('python version', version)
 
 from pyscript import window, document, when
-from pyscript.js_modules.communication import send_py2js as send_data
+from pyscript.js_modules.communication import send_py2js as send_data # type: ignore
 import json
 
-import ezregex as er
-from ezregex import *
-print('ezregex version', er.__version__)
+import ezregex.python as python_dialect
+import ezregex.perl as perl_dialect
+from ezregex import __version__ as ezregex_version
+print('ezregex version', ezregex_version)
+
+dialects = {
+    'python': python_dialect,
+    'perl': perl_dialect,
+}
+dialect = 'python'
 
 error = window.console.error
 
 patternInput = document.querySelector('#patternInput')
 replacementInput = document.querySelector('#replacementInput')
-# textInput = document.querySelector('#textInput')
-# textOutput = document.querySelector('#textOutput')
-# regexOutput = document.querySelector('#regexOutput')
-# isError = document.querySelector('#is-error')
-# js2py = document.querySelector('#js2py')
-# py2js = document.querySelector('#py2js')
 
 
 def formatInput2code(s):
@@ -41,11 +43,11 @@ def run_code(pattern, replacement=False):
     # Set the variable before the end of the last line so we can do variables in the text_area
     try:
         local = {}
-        exec(pattern, globals(), local)
+        exec(pattern, dialects[dialect].__dict__, local)
         pattern = local['pattern']
 
         if isinstance(pattern, str):
-            pattern = literal(pattern)
+            pattern = dialects[dialect].literal(pattern)
 
     except TypeError as err:
         prefix = "Invalid parameters"
@@ -68,17 +70,20 @@ def run_code(pattern, replacement=False):
     send_data('error', err_msg)
     return None
 
+def set_dialect(to):
+    global dialect
+    dialect = to
 
-print
 @when('custom', '#js2py')
 def recieve_data(event):
     signal, data = event.detail
-    data = json.loads(str(data))
     # print(f'Py script loaded data of type {type(data)}:')
     # print(data)
     match signal:
         case "update":
-            update(*data)
+            update(*json.loads(str(data)))
+        case "set_dialect":
+            set_dialect(data)
         case _:
             error(f"Python script recieved unknown signal from js2py element: `{signal}` with data:\n{data}")
 
@@ -120,6 +125,6 @@ else:
 
 try:
     version_caption = document.querySelector('#version-caption')
-    version_caption.innerText = f'Copeland Carter | v{er.__version__}'
+    version_caption.innerText = f'Copeland Carter | v{ezregex_version}'
 except Exception as err:
     error('Python Script: Somehow we couldnt find #version-caption')

@@ -19,8 +19,8 @@ function InputPicker({setInputType}){
 
 function ModePicker({setMode}){
     const handleChange = e => setMode(e.target.value)
-    return <>
-        <label htmlFor="radio-group">Mode</label>
+    return <span>
+        <label htmlFor="radio-group">Mode:</label>
         <div id="radio-group">
             <div>
                 <input type="radio" id="Search" name="mode" value="search" defaultChecked onChange={handleChange}/>
@@ -37,7 +37,20 @@ function ModePicker({setMode}){
                 <label htmlFor="Split">Split</label>
             </div>
         </div>
-    </>
+    </span>
+}
+
+function DialectPicker({setDialect}){
+    const handleChange = e => setDialect(e.target.value)
+    return <span id="dialect-picker">
+            <label htmlFor="input-type-selector">Regex Dialect:</label>
+            <select name="input-type" id='input-type-selector' required onChange={handleChange}>
+                <option value="python">Python</option>
+                <option value="perl">Perl (expiremental)</option>
+                {/* <option value="javascript">JavaScript</option> */}
+            </select>
+            <br/>
+        </span>
 }
 
 function PatternInput({text, setCode, setToUpdate, setInputType, blockly=false}){
@@ -50,7 +63,7 @@ function PatternInput({text, setCode, setToUpdate, setInputType, blockly=false})
         rows: text?.split('\n').length,
     }
 
-    const label = <span id='spread'>
+    const label = <span className='spread'>
         <label htmlFor="patternInput">EZRegex Pattern:</label>
         <InputPicker setInputType={setInputType}/>
     </span>
@@ -137,7 +150,7 @@ function Matches({matches}){
 
                 <h3>Unnamed Groups</h3>
                 {group.unnamedGroups.map((g, i) => (
-                    <pre className='group'>
+                    <pre className='group' key={`unnamed-group-${i}`}>
                         <strong>{i+1}:</strong>
                         <span style={{backgroundColor: g.color}}>{g.string}</span>
                         <em> {`(${group.match.start}:${group.match.end})`}</em>
@@ -146,8 +159,8 @@ function Matches({matches}){
 
                 <h3>Named Groups</h3>
                 {Object.entries(group.namedGroups).map(([name, g]) => (
-                    <pre className='group'>
-                        <strong>{name}:</strong>
+                    <pre className='group' key={`named-group-${name}`}>
+                        <strong>{name}: </strong>
                         <span style={{backgroundColor: g.color}}>{g.string}</span>
                         <em> {`(${group.match.start}:${group.match.end})`}</em>
                     </pre>
@@ -164,10 +177,16 @@ export default function App() {
     const [text, setText] = useState('')
     const [error, setError] = useState(null)
     const [mode, setMode] = useState('search')
+    const [dialect, setDialectState] = useState('python')
     const [inputType, setInputType] = useState('blocks')
     const [needsUpdate, setToUpdate] = useState(true)
 
     const showMatches = data !== null && code.length
+
+    function setDialect(to){
+        setDialectState(to)
+        send_js2py('set_dialect', to)
+    }
 
     useEffect(() => {
         // Set up communication with the python script
@@ -198,8 +217,6 @@ export default function App() {
             setCode(rawCode)
             setReplaceCode('')
         } else {
-            // const [full, group] = match
-            // console.log(rawCode.slice(match.index, match[0].length))
             setCode((rawCode.slice(0, match.index) + rawCode.slice(match.index + match[0].length, rawCode.length)).trim())
             setReplaceCode('pattern = ' + match[1])
         }
@@ -237,7 +254,10 @@ export default function App() {
 
     return (
         <div className="App">
-            <ModePicker setMode={setMode}/>
+            <span className='spread'>
+                <ModePicker setMode={setMode}/>
+                <DialectPicker setDialect={setDialect}/>
+            </span>
             {input}
             <TextInput generated={data?.string} text={text} setText={setText} setToUpdate={setToUpdate}/>
             {(mode === 'replace') && <ReplacementInput

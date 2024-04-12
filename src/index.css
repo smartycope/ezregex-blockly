@@ -1,15 +1,15 @@
 /* Theme blue: #0ED7BA */
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 
@@ -18,7 +18,10 @@ body {
     max-width: 100vw;
 }
 
-pre, code, textarea, select{
+pre,
+code,
+textarea,
+select {
     overflow: auto;
     margin: 5px;
     border-radius: 8px;
@@ -26,7 +29,7 @@ pre, code, textarea, select{
     background-color: #262730;
 }
 
-textarea{
+textarea {
     display: block;
     padding-top: 8px;
     padding-bottom: 8px;
@@ -62,14 +65,17 @@ textarea:valid {
     margin: 1rem;
 } */
 
-#patternInput, #regexOutput, #textInput, #replacementInput{
+#patternInput,
+#regexOutput,
+#textInput,
+#replacementInput {
     /* height: 50%; */
 
     /* border-radius: 8px; */
     width: 100%;
 }
 
-#textInput{
+#textInput {
     margin-top: 20px;
     margin-bottom: 20px;
 }
@@ -78,36 +84,41 @@ textarea:valid {
     height: 50%;
 }
 
-body{
+body {
     background-color: #1e1e1e;
 }
 
-h1, h2, h3, label{
+h1,
+h2,
+h3,
+label {
     color: #FAFAFA;
 }
 
-label{
+label {
     padding-right: 20px;
     /* padding-top: 20px; TODO this isn't working? */
 }
 
-h6, strong{
+h6,
+strong {
     color: #9C9D9F;
 }
 
-#is-error{
+#is-error {
     height: 0;
     width: 0;
     visibility: hidden;
 }
 
-#js2py, #py2js{
+#js2py,
+#py2js {
     height: 0;
     width: 0;
     visibility: hidden;
 }
 
-summary{
+summary {
     display: flex;
     /* justify-content: center; */
     align-items: center;
@@ -118,65 +129,74 @@ summary{
     color: #9C9D9F;
     /* border: 1px solid #3D4044; */
 }
-summary:hover{
-    color:aqua;
+
+summary:hover {
+    color: aqua;
     /* background-color:aqua; */
 
 }
-body{
+
+body {
     padding-left: 80px;
     padding-right: 80px;
-    padding-bottom: 50px;;
+    padding-bottom: 50px;
+    ;
 }
 
-details{
+details {
     border: 1px solid #3D4044;
     border-radius: 8px;
 }
-.group{
+
+.group {
     padding: 5px;
     margin-left: 30px;
     width: min-content;
 }
-.group-contents{
-    margin-left: 30px;;
 
-    em{
+.group-contents {
+    margin-left: 30px;
+    ;
+
+    em {
         color: #9C9D9F;
     }
 }
 
-details[open] > summary {
+details[open]>summary {
     border-bottom: 1px solid #aaa;
     margin-bottom: 0.5em;
     color: #fff;
 }
 
-hr{
+hr {
     margin-top: 20px;
     margin-bottom: 20px;
 }
-input[type="radio"]{
+
+input[type="radio"] {
     margin: 8px;
     /* color: #FAFAFA; */
 }
 
-#radio-group{
+#radio-group {
     display: flex;
     /* justify-content: center; */
     align-items: center;
     /* padding: 10px; */
 }
 
-#error-text{
+#error-text {
     color: crimson;
 }
 
-textarea, #blocklyDiv, input[type="radio"]{
+textarea,
+#blocklyDiv,
+input[type="radio"] {
     margin-bottom: 30px;
 }
 
-#spread{
+.spread {
     /* display: flex; */
     /* display: inline-flex; */
     /* flex:content; */
@@ -187,7 +207,11 @@ textarea, #blocklyDiv, input[type="radio"]{
     /* flex-direction: row; */
 }
 
-label{
+label {
     /* align-items: center; */
     /* margin-bottom: -5px; */
+}
+
+#dialect-picker {
+    align-self: center;
 }

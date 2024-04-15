@@ -2,28 +2,30 @@ from sys import version
 print('python version', version)
 
 from pyscript import window, document, when
-from pyscript.js_modules.communication import send_py2js as send_data
+from pyscript.js_modules.communication import send_py2js as send_data # type: ignore
 import json
 
-import ezregex as er
-from ezregex import *
-print('ezregex version', er.__version__)
+import ezregex.python as python_dialect
+import ezregex.perl as perl_dialect
+from ezregex import api, __version__ as ezregex_version
+print('ezregex version', ezregex_version)
+
+import re
+
+dialects = {
+    'python': python_dialect,
+    'perl': perl_dialect,
+}
+dialect = 'python'
 
 error = window.console.error
 
 patternInput = document.querySelector('#patternInput')
 replacementInput = document.querySelector('#replacementInput')
-# textInput = document.querySelector('#textInput')
-# textOutput = document.querySelector('#textOutput')
-# regexOutput = document.querySelector('#regexOutput')
-# isError = document.querySelector('#is-error')
-# js2py = document.querySelector('#js2py')
-# py2js = document.querySelector('#py2js')
 
 
 def formatInput2code(s):
     # keywords = set(dir(builtins) + dir(er) + re.findall((lineStart + group(word) + ifFollowedBy(ow + '=')).str(), s))
-    # print(anyExcept(anyof(*keywords), type='.*'))
     # s = re.sub((anyExcept('literal', type='.*')).str(), '"' + replace_entire.str() + '"', s)
     lines = s.splitlines()
     # Remove the last lines which are actually comments
@@ -33,7 +35,6 @@ def formatInput2code(s):
     lines.append('\n_rtn = '  + lines.pop(-1))
     return '\n'.join(lines)
 
-
 def run_code(pattern, replacement=False):
     error: Exception
     prefix = 'Error'
@@ -41,11 +42,11 @@ def run_code(pattern, replacement=False):
     # Set the variable before the end of the last line so we can do variables in the text_area
     try:
         local = {}
-        exec(pattern, globals(), local)
+        exec(pattern, dialects[dialect].__dict__, local)
         pattern = local['pattern']
 
         if isinstance(pattern, str):
-            pattern = literal(pattern)
+            pattern = dialects[dialect].literal(pattern)
 
     except TypeError as err:
         prefix = "Invalid parameters"
@@ -68,48 +69,49 @@ def run_code(pattern, replacement=False):
     send_data('error', err_msg)
     return None
 
+def set_dialect(to):
+    global dialect
+    dialect = to
 
-print
 @when('custom', '#js2py')
 def recieve_data(event):
     signal, data = event.detail
-    data = json.loads(str(data))
-    # print(f'Py script loaded data of type {type(data)}:')
-    # print(data)
     match signal:
         case "update":
-            update(*data)
+            update(*json.loads(str(data)))
+        case "set_dialect":
+            set_dialect(data)
         case _:
             error(f"Python script recieved unknown signal from js2py element: `{signal}` with data:\n{data}")
 
-def update(pattern, replacement=None, text=None):
-    # print('Py is using text:', text)
+def update(pattern, replacement_pattern=None, text=None):
+    if text is not None and not len(text.strip()):
+        text = None
 
+    replacement = None
     if len(pattern):
         pattern = run_code(pattern)
-        if pattern is not None:
-            try:
-                data = pattern._matchJSON(text)
-            except Exception as err:
-                error("Python script handled error when compiling EZRegex pattern:\n", str(err))
-                send_data('error', str(err))
-            else:
-                send_data('response', json.dumps(data))
-        else:
-            send_data('error', 'Could not compile pattern')
+    if replacement_pattern is not None:
+        replacement = run_code(replacement_pattern, replacement=True)
 
-    if replacement and len(replacement):
-        replacement = run_code(replacement, replacement=True)
-        if replacement is not None:
-            try:
-                data = replacement._matchJSON(text)
-            except Exception as err:
-                error("Python script handled error when compiling EZRegex pattern:\n", str(err))
-                send_data('error', 'In replacement pattern: ' + str(err))
-            else:
-                send_data('response', json.dumps(data))
-        else:
-            send_data('error', 'Could not compile replacement pattern')
+
+    if pattern is None:
+        send_data('error', 'Could not compile pattern')
+        return
+    if replacement is None and replacement_pattern is not None:
+        send_data('error', 'Could not compile replacement pattern')
+        return
+
+
+    try:
+        data = api(pattern, replacement, text)
+    except Exception as err:
+        error("Python script handled error when compiling EZRegex pattern:\n", str(err))
+        # send_data('error', f'Error on line {err.__traceback__.tb_lineno}: {err}')
+        send_data('error', str(err))
+        return
+    else:
+        send_data('response', json.dumps(data))
 
 
 if patternInput:
@@ -117,9 +119,8 @@ if patternInput:
 else:
     error('Warning: Python script couldnt find #patternInput')
 
-
 try:
     version_caption = document.querySelector('#version-caption')
-    version_caption.innerText = f'Copeland Carter | v{er.__version__}'
+    version_caption.innerText = f'Copeland Carter | v{ezregex_version}'
 except Exception as err:
     error('Python Script: Somehow we couldnt find #version-caption')

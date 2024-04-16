@@ -140,31 +140,28 @@ function RegexDisplay({regex}){
 }
 
 function Matches({matches}){
+    function groups(group, key){
+        return Object.entries(group[key]).map(([id, g]) => (
+            <span id='groups-line'>
+                <strong>{id + 0}:</strong>
+                <pre className='group' key={`${key}-${id}`} style={{backgroundColor: g.color}}>
+                    {g.string}
+                </pre>
+                <em> {`(${group.match.start}:${group.match.end})`}</em>
+            </span>
+        ))
+    }
     return matches.map(group => (<>
         <details key={`group-${group.match.start}-${group.match.end}`}>
-            <summary>
-                <pre dangerouslySetInnerHTML={{__html: group.match.stringHTML}}></pre>
+            <summary key={`summary-${group.match.start}-${group.match.end}`}>
+                <pre dangerouslySetInnerHTML={{__html: group.match['string HTML']}}></pre>
                 <em>{`(${group.match.start}:${group.match.end})`}</em>
             </summary>
             <div className='group-contents'>
-
                 <h3>Unnamed Groups</h3>
-                {group.unnamedGroups.map((g, i) => (
-                    <pre className='group' key={`unnamed-group-${i}`}>
-                        <strong>{i+1}:</strong>
-                        <span style={{backgroundColor: g.color}}>{g.string}</span>
-                        <em> {`(${group.match.start}:${group.match.end})`}</em>
-                    </pre>
-                ))}
-
+                {groups(group, 'unnamed groups')}
                 <h3>Named Groups</h3>
-                {Object.entries(group.namedGroups).map(([name, g]) => (
-                    <pre className='group' key={`named-group-${name}`}>
-                        <strong>{name}: </strong>
-                        <span style={{backgroundColor: g.color}}>{g.string}</span>
-                        <em> {`(${group.match.start}:${group.match.end})`}</em>
-                    </pre>
-                ))}
+                {groups(group, 'named groups')}
             </div>
         </details>
     </>))
@@ -198,7 +195,6 @@ export default function App() {
                     setError(null)
                     break
                 case "error":
-                    // console.log('Recieved error from Python script: ' + e.detail[1])
                     setError(e.detail[1])
                     break
                 default:
@@ -248,7 +244,10 @@ export default function App() {
             input = <PatternInput text={code} setCode={setCode} setToUpdate={setToUpdate} setInputType={setInputType}/>
             break
         case "generate":
-            input = <p>Auto-Generation is not supported in the updated website yet. It is in the old version: <a href="https://ezregex.streamlit.app/">ezregex.streamlit.app</a></p>
+            input = <>
+                <InputPicker setInputType={setInputType}/>
+                <p>Auto-Generation is not supported in the updated website yet. It is in the old version: <a href="https://ezregex.streamlit.app/">ezregex.streamlit.app</a></p>
+            </>
             break
     }
 
@@ -273,7 +272,7 @@ export default function App() {
                 </> : showMatches && <>
                     <hr/>
                     <h2>Looking for matches in:</h2>
-                    <TextOutput html={data?.stringHTML}/>
+                    <TextOutput html={data['string HTML']}/>
                     <h2>Using regex:</h2>
                     <RegexDisplay regex={data?.regex}/>
                     <h2>Matches:</h2>

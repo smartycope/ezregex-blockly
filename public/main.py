@@ -1,4 +1,3 @@
-import glob
 from sys import version
 print('python version', version)
 
@@ -8,8 +7,10 @@ import json
 
 import ezregex.python as python_dialect
 import ezregex.perl as perl_dialect
-from ezregex import __version__ as ezregex_version
+from ezregex import api, __version__ as ezregex_version
 print('ezregex version', ezregex_version)
+
+import re
 
 dialects = {
     'python': python_dialect,
@@ -25,7 +26,6 @@ replacementInput = document.querySelector('#replacementInput')
 
 def formatInput2code(s):
     # keywords = set(dir(builtins) + dir(er) + re.findall((lineStart + group(word) + ifFollowedBy(ow + '=')).str(), s))
-    # print(anyExcept(anyof(*keywords), type='.*'))
     # s = re.sub((anyExcept('literal', type='.*')).str(), '"' + replace_entire.str() + '"', s)
     lines = s.splitlines()
     # Remove the last lines which are actually comments
@@ -76,8 +76,6 @@ def set_dialect(to):
 @when('custom', '#js2py')
 def recieve_data(event):
     signal, data = event.detail
-    # print(f'Py script loaded data of type {type(data)}:')
-    # print(data)
     match signal:
         case "update":
             update(*json.loads(str(data)))
@@ -87,37 +85,33 @@ def recieve_data(event):
             error(f"Python script recieved unknown signal from js2py element: `{signal}` with data:\n{data}")
 
 def update(pattern, replacement_pattern=None, text=None):
-    # print('Py is using text:', text)
-    pattern = None
+    if text is not None and not len(text.strip()):
+        text = None
+
     replacement = None
     if len(pattern):
         pattern = run_code(pattern)
-
-    if replacement_pattern and len(replacement_pattern):
+    if replacement_pattern is not None:
         replacement = run_code(replacement_pattern, replacement=True)
 
-    if pattern is not None:
-        try:
-            pattern_data = pattern._matchJSON(text)
-        except Exception as err:
-            error("Python script handled error when compiling EZRegex pattern:\n", str(err))
-            send_data('error', str(err))
-            return
-    else:
+
+    if pattern is None:
         send_data('error', 'Could not compile pattern')
+        return
+    if replacement is None and replacement_pattern is not None:
+        send_data('error', 'Could not compile replacement pattern')
         return
 
 
-    if replacement is not None:
-        try:
-            replacement_data = replacement._matchJSON(text)
-        except Exception as err:
-            error("Python script handled error when compiling EZRegex pattern:\n", str(err))
-            send_data('error', 'In replacement pattern: ' + str(err))
-        else:
-            send_data('response', json.dumps(replacement_data))
-    elif len(replacement_pattern):
-        send_data('error', 'Could not compile replacement pattern')
+    try:
+        data = api(pattern, replacement, text)
+    except Exception as err:
+        error("Python script handled error when compiling EZRegex pattern:\n", str(err))
+        # send_data('error', f'Error on line {err.__traceback__.tb_lineno}: {err}')
+        send_data('error', str(err))
+        return
+    else:
+        send_data('response', json.dumps(data))
 
 
 if patternInput:

@@ -448,7 +448,7 @@ export default Blockly.common.createBlockDefinitionsFromJsonArray([
         },
         {
             'type': "matchRange",
-            'message0': "Match between %1 and %2 of \n%3 geedy: %4\npossessive: %5",
+            'message0': "Match between %1 and %2 of \n%3 greedy: %4\npossessive: %5",
             'args0': [
                 {
                     'type': 'field_number',
@@ -531,7 +531,7 @@ export default Blockly.common.createBlockDefinitionsFromJsonArray([
         },
         {
             'type': "atLeastOne",
-            'message0': "Match at least one of \n%1 geedy: %2\npossessive: %3",
+            'message0': "Match at least one of \n%1 greedy: %2\npossessive: %3",
             'args0': [
                 {
                     'type': 'input_statement',
@@ -556,7 +556,7 @@ export default Blockly.common.createBlockDefinitionsFromJsonArray([
         },
         {
             'type': "atLeastNone",
-            'message0': "Match 0 or more of \n%1 geedy: %2\npossessive: %3",
+            'message0': "Match 0 or more of \n%1 greedy: %2\npossessive: %3",
             'args0': [
                 {
                     'type': 'input_statement',
@@ -581,7 +581,7 @@ export default Blockly.common.createBlockDefinitionsFromJsonArray([
         },
     // choices - TODO
         {'type': "optional",
-            'message0': "Optional \n%1 geedy: %2\npossessive: %3",
+            'message0': "Optional \n%1 greedy: %2\npossessive: %3",
             'args0': [
                 {
                     'type': 'input_statement',

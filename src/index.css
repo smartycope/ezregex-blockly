@@ -224,3 +224,38 @@ label {
     display: flex;
     /* justify-content: space-between; */
 }
+
+#title{
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+h1{
+    /* color: #262730; */
+    padding-left: 10%;
+}
+
+#logo-holder{
+    /* position: absolute; */
+    /* padding-top: 160px;
+    padding-left: 60px;
+    z-index: -1;
+    scale: 170%;
+    opacity: 30%; */
+    /* float: right; */
+    /* justify-content: ; */
+}
+
+#fatty{
+    display: flex;
+}
+
+#logo{
+    scale:  80%;
+    /* position: absolute; */
+    /* padding-right: -200%; */
+    /* width:  80%; */
+    /* height: 70%; */
+    /* flex-shrink: 10%; */
+}

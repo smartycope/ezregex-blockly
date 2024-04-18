@@ -11,7 +11,7 @@ function InputPicker({setInputType}){
             <select name="input-type" id='input-type-selector' required onChange={handleChange}>
                 <option value="blocks">Blocks</option>
                 <option value="manual">Manual</option>
-                <option value="generate">Auto-Generate</option>
+                {/* <option value="generate">Auto-Generate</option> */}
             </select>
             <br/>
         </span>
@@ -46,8 +46,8 @@ function DialectPicker({setDialect}){
             <label htmlFor="input-type-selector">Regex Dialect:</label>
             <select name="input-type" id='input-type-selector' required onChange={handleChange}>
                 <option value="python">Python</option>
-                <option value="perl">Perl (expiremental)</option>
-                {/* <option value="javascript">JavaScript</option> */}
+                <option value="javascript">JavaScript (expiremental)</option>
+                {/* <option value="perl">Perl (expiremental)</option> */}
             </select>
             <br/>
         </span>
@@ -142,25 +142,25 @@ function RegexDisplay({regex}){
 function Matches({matches}){
     function groups(group, key){
         return Object.entries(group[key]).map(([id, g]) => (
-            <span id='groups-line'>
-                <strong>{id + 0}:</strong>
-                <pre className='group' key={`${key}-${id}`} style={{backgroundColor: g.color}}>
+            <span id='groups-line' key={`span-${key}-${id}`}>
+                <strong key={`strong-${key}-${id}`}>{id}:</strong>
+                <pre className='group' key={`pre-${key}-${id}`} style={{backgroundColor: g.color}}>
                     {g.string}
                 </pre>
-                <em> {`(${group.match.start}:${group.match.end})`}</em>
+                <em key={`em-${key}-${id}`}> {`(${group.match.start}:${group.match.end})`}</em>
             </span>
         ))
     }
     return matches.map(group => (<>
         <details key={`group-${group.match.start}-${group.match.end}`}>
             <summary key={`summary-${group.match.start}-${group.match.end}`}>
-                <pre dangerouslySetInnerHTML={{__html: group.match['string HTML']}}></pre>
-                <em>{`(${group.match.start}:${group.match.end})`}</em>
+                <pre dangerouslySetInnerHTML={{__html: group.match['string HTML']}} key={`pre-${group.match.start}-${group.match.end}`}></pre>
+                <em key={`em-${group.match.start}-${group.match.end}`}>{`(${group.match.start}:${group.match.end})`}</em>
             </summary>
-            <div className='group-contents'>
-                <h3>Unnamed Groups</h3>
+            <div className='group-contents' key={`div-${group.match.start}-${group.match.end}`}>
+                <h3 key={`h3-${group.match.start}-${group.match.end}`}>Unnamed Groups</h3>
                 {groups(group, 'unnamed groups')}
-                <h3>Named Groups</h3>
+                <h3 key={`h3-2-${group.match.start}-${group.match.end}`}>Named Groups</h3>
                 {groups(group, 'named groups')}
             </div>
         </details>

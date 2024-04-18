@@ -274,10 +274,10 @@ const toolbox = {
                 'kind': 'block',
                 'type': "alphaNum",
             },
-            {
-                'kind': 'block',
-                'type': "unicode",
-            },
+            // {
+            //     'kind': 'block',
+            //     'type': "unicode",
+            // },
             {
                 'kind': 'block',
                 'type': "anyBetween",

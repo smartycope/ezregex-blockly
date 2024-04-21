@@ -113,6 +113,8 @@ def update(pattern, replacement_pattern=None, text=None):
     debug('here 3')
     try:
         data = api(pattern, replacement, text)
+    except NotImplementedError as err:
+        send_data('error', 'Not Implemented: Unable to invert pattern, try providing text to search')
     except Exception as err:
         error("line 123 ish: Python script handled error when compiling EZRegex pattern:\n", str(err))
         # send_data('error', f'Error on line {err.__traceback__.tb_lineno}: {err}')

@@ -1,6 +1,7 @@
 /* eslint-disable default-case */
 import React, { useEffect, useState } from 'react';
 import BlocklyComponent from "./BlocklyComponent"
+import Editor from '@monaco-editor/react';
 import { send_js2py } from './communication';
 
 
@@ -54,13 +55,49 @@ function DialectPicker({setDialect}){
 }
 
 function PatternInput({text, setCode, setToUpdate, setInputType, blockly=false}){
-    const props = {
-        id: 'patternInput',
-        autoComplete: 'off',
-        autoCorrect: 'off',
-        autoCapitalize: 'off',
-        wrap: "soft",
-        rows: text?.split('\n').length,
+    function handleEditorWillMount(monaco) {
+        monaco.languages.registerCompletionItemProvider('python', {
+            provideCompletionItems: () => {
+                return {
+                    suggestions: [{
+                        label: 'Test Label',
+                        kind: monaco.languages.CompletionItemKind.Function,
+                        documentation: 'The documentation for test',
+                        detail: "the detial for test",
+                        insertText: "test snippet $1<-",
+                        commitCharacters: ['('],
+                        additionalTextEdits: {forceMoveMarkers: true},
+                    }]
+                }
+            }
+        })
+        monaco.languages.registerCodeLensProvider('python', {
+            provideCodeLenses: () => {
+                return {
+                    lenses:[{
+                        id: 'test',
+                        command: {
+                            arguments: ['testarg1', 'testarg2'],
+                            id: 'test',
+                            title: 'test title',
+                            tooltip: 'test tooltip',
+                        },
+                        range: {
+                            endColumn: 50,
+                            startColumn: 0,
+                            startLineNumber: 0,
+                            endLineNumber: 50,
+                        }
+                    }]
+                }
+            }
+        })
+        // monaco.languages.python.pythonDefaults.addExtraLib([
+        //     'def testFunc(paramA, paramB:int) -> str:',
+        //     '     """ testFunc doc string """',
+        //     '    ...',
+        //     '}',
+        // ].join('\n'), 'filename/facts.pyi');
     }
 
     const label = <span className='spread'>
@@ -71,19 +108,43 @@ function PatternInput({text, setCode, setToUpdate, setInputType, blockly=false})
     if (blockly)
         return <>
             {label}
-            <textarea {...props}
+            <textarea
+                id='patternInput'
+                autoComplete='off'
+                autoCorrect='off'
+                autoCapitalize='off'
+                wrap="soft"
+                rows={text?.split('\n').length}
                 value={text.length ? text : undefined}
                 readOnly={true}
             ></textarea>
         </>
     else
-        return <>
-            {label}
-            <textarea {...props}
-                onChange={e => {setCode(e.target.value); setToUpdate(true)}}
-                defaultValue={text.length ? text : undefined}
-            ></textarea>
-        </>
+    return <>
+        {label}
+        <Editor
+            height="100px"
+            defaultLanguage="python"
+            beforeMount={handleEditorWillMount}
+            onChange={(val, evt) => {setCode(val); setToUpdate(true)}}
+            defaultValue={text.length ? text : undefined}
+            theme="vs-dark"
+            // keepCurrentModel={true} // This is probably unnecissary?
+            options={{
+                wordWrap: 'on',
+                minimap: {
+                    enabled: false,
+                },
+                links: false,
+                // quickSuggestions: {
+                //     strings
+                // }
+                scrollbar: {
+                    horizontal: 'hidden',
+                }
+            }}
+        />
+    </>
 }
 
 function ReplacementInput({text, setReplaceCode, setToUpdate, blockly=false}){
@@ -283,6 +344,13 @@ export default function App() {
                 <hr />
                 <h2>Replaced String:</h2>
                 <pre>{data?.replaced}</pre>
+            </>}
+            {(mode === 'split' && !error) && <>
+                <hr />
+                <h2>Split String:</h2>
+                {data?.split.map((i) =>
+                    <pre>{i}</pre>
+                )}
             </>}
         </div>
     );

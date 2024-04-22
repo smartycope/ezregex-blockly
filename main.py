@@ -19,6 +19,8 @@ dialects = {
 dialect = 'python'
 
 error = window.console.error
+info = window.console.info
+debug = window.console.debug
 
 patternInput = document.querySelector('#patternInput')
 replacementInput = document.querySelector('#replacementInput')
@@ -36,6 +38,7 @@ def formatInput2code(s):
     return '\n'.join(lines)
 
 def run_code(pattern, replacement=False):
+    debug('run_code called')
     error: Exception
     prefix = 'Error'
     # Run the code, get the var, and get the JSON search info
@@ -67,6 +70,7 @@ def run_code(pattern, replacement=False):
     err_msg += '\n' + str(error.with_traceback(None))
 
     send_data('error', err_msg)
+    debug('run_code finished')
     return None
 
 def set_dialect(to):
@@ -75,6 +79,7 @@ def set_dialect(to):
 
 @when('custom', '#js2py')
 def recieve_data(event):
+    debug('recieve_data called with', event)
     signal, data = event.detail
     match signal:
         case "update":
@@ -82,19 +87,22 @@ def recieve_data(event):
         case "set_dialect":
             set_dialect(data)
         case _:
-            error(f"Python script recieved unknown signal from js2py element: `{signal}` with data:\n{data}")
+            error("line 96 ish: Python script recieved unknown signal from js2py element: `{signal}` with data:\n{data}")
 
 def update(pattern, replacement_pattern=None, text=None):
+    debug('update called')
+    debug(f'pattern = `{pattern}`\nreplacement_pattern = `{replacement_pattern}`\ntext = `{text}`')
     if text is not None and not len(text.strip()):
         text = None
 
+    debug('here 1')
     replacement = None
     if len(pattern):
         pattern = run_code(pattern)
     if replacement_pattern is not None:
         replacement = run_code(replacement_pattern, replacement=True)
 
-
+    debug('here 2')
     if pattern is None:
         send_data('error', 'Could not compile pattern')
         return
@@ -102,25 +110,28 @@ def update(pattern, replacement_pattern=None, text=None):
         send_data('error', 'Could not compile replacement pattern')
         return
 
-
+    debug('here 3')
     try:
         data = api(pattern, replacement, text)
+    except NotImplementedError as err:
+        send_data('error', 'Not Implemented: Unable to invert pattern, try providing text to search')
     except Exception as err:
-        error("Python script handled error when compiling EZRegex pattern:\n", str(err))
+        error("line 123 ish: Python script handled error when compiling EZRegex pattern:\n", str(err))
         # send_data('error', f'Error on line {err.__traceback__.tb_lineno}: {err}')
         send_data('error', str(err))
         return
     else:
         send_data('response', json.dumps(data))
 
+    debug('update finished')
 
 if patternInput:
     update(patternInput.value, replacementInput.value if replacementInput else None)
 else:
-    error('Warning: Python script couldnt find #patternInput')
+    error('line -7 ish: Warning: Python script couldnt find #patternInput')
 
 try:
     version_caption = document.querySelector('#version-caption')
     version_caption.innerText = f'Copeland Carter | v{ezregex_version}'
 except Exception as err:
-    error('Python Script: Somehow we couldnt find #version-caption')
+    error('line -1: Python Script: Somehow we couldnt find #version-caption')

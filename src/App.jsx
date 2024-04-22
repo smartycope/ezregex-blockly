@@ -7,7 +7,7 @@ import { send_js2py } from './communication';
 
 function InputPicker({setInputType}){
     const handleChange = e => setInputType(e.target.value)
-    return <span>
+    return <span id='input-picker'>
             <label htmlFor="input-type-selector">Input method:</label>
             <select name="input-type" id='input-type-selector' required onChange={handleChange}>
                 <option value="blocks">Blocks</option>
@@ -23,20 +23,20 @@ function ModePicker({setMode}){
     return <span>
         <label htmlFor="radio-group">Mode:</label>
         <div id="radio-group">
-            <div>
+            <span className='radio-container'>
                 <input type="radio" id="Search" name="mode" value="search" defaultChecked onChange={handleChange}/>
                 <label htmlFor="Search">Search</label>
-            </div>
+            </span>
 
-            <div>
+            <span className='radio-container'>
                 <input type="radio" id="replace" name="mode" value="replace" onChange={handleChange}/>
                 <label htmlFor="replace">Replace</label>
-            </div>
+            </span>
 
-            <div>
+            <span className='radio-container'>
                 <input type="radio" id="Split" name="mode" value="split" onChange={handleChange}/>
                 <label htmlFor="Split">Split</label>
-            </div>
+            </span>
         </div>
     </span>
 }
@@ -60,12 +60,12 @@ function PatternInput({text, setCode, setToUpdate, setInputType, blockly=false})
             provideCompletionItems: () => {
                 return {
                     suggestions: [{
-                        label: 'Test Label',
+                        label: 'digit',
                         kind: monaco.languages.CompletionItemKind.Function,
-                        documentation: 'The documentation for test',
-                        detail: "the detial for test",
-                        insertText: "test snippet $1<-",
-                        commitCharacters: ['('],
+                        documentation: 'A single digit',
+                        detail: "\\d",
+                        insertText: "digit",
+                        commitCharacters: [' ', '+'],
                         additionalTextEdits: {forceMoveMarkers: true},
                     }]
                 }
@@ -197,7 +197,11 @@ function TextOutput({html}){
 }
 
 function RegexDisplay({regex}){
-    return <pre id="regexOutput"><code>{regex}</code></pre>;
+    // return <pre id="regexOutput"><code>{regex}</code></pre>;
+    return <div id="regexOutput">
+        <code id='regex-code'>{regex}</code>
+        <button id='copy-button' onClick={() => navigator.clipboard.writeText(regex)}>Copy</button>
+    </div>
 }
 
 function Matches({matches}){
@@ -238,6 +242,18 @@ export default function App() {
     const [dialect, setDialectState] = useState('python')
     const [inputType, setInputType] = useState('blocks')
     const [needsUpdate, setToUpdate] = useState(true)
+    const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+    // Set up screen size listener
+    useEffect(() => {
+      const mediaQuery = window.matchMedia('(max-width: 1000px)');
+      const handleResize = () => setIsSmallScreen(mediaQuery.matches);
+
+      handleResize(); // Call once to set initial state
+      mediaQuery.addEventListener('change', handleResize);
+      return () => mediaQuery.removeEventListener('change', handleResize);
+    }, [])
+
 
     const showMatches = data !== null && code.length
 
@@ -268,7 +284,7 @@ export default function App() {
     }, [])
 
     function setCodes(rawCode){
-        const match = rawCode.match(/^replacement = (.+)\n?/m)
+        const match = rawCode.match(/^replacement =(.+)\n?/m)
 
         if (match === null){
             setCode(rawCode)
@@ -314,44 +330,47 @@ export default function App() {
 
     return (
         <div className="App">
-            <span className='spread'>
-                <ModePicker setMode={setMode}/>
-                <DialectPicker setDialect={setDialect}/>
-            </span>
-            {input}
-            <TextInput generated={data?.string} text={text} setText={setText} setToUpdate={setToUpdate}/>
-            {(mode === 'replace') && <ReplacementInput
-                text={replaceCode}
-                setReplaceCode={setReplaceCode}
-                setToUpdate={setToUpdate}
-                blockly={inputType === "blockly"}
-            />}
-            {
-                error ? <>
-                    <hr/>
-                    <p id='error-text'>{error}</p>
-                </> : showMatches && <>
-                    <hr/>
-                    <h2>Looking for matches in:</h2>
-                    <TextOutput html={data['string HTML']}/>
-                    <h2>Using regex:</h2>
-                    <RegexDisplay regex={data?.regex}/>
-                    <h2>Matches:</h2>
-                    <Matches matches={data?.matches}/>
-                </>
-            }
-            {(mode === 'replace' && !error) && <>
-                <hr />
-                <h2>Replaced String:</h2>
-                <pre>{data?.replaced}</pre>
-            </>}
-            {(mode === 'split' && !error) && <>
-                <hr />
-                <h2>Split String:</h2>
-                {data?.split.map((i) =>
-                    <pre>{i}</pre>
-                )}
-            </>}
+            <div id='input'>
+                <span className='spread'>
+                    <ModePicker setMode={setMode}/>
+                    <DialectPicker setDialect={setDialect}/>
+                </span>
+                {input}
+                <TextInput generated={data?.string} text={text} setText={setText} setToUpdate={setToUpdate}/>
+                {(mode === 'replace') && <ReplacementInput
+                    text={replaceCode}
+                    setReplaceCode={setReplaceCode}
+                    setToUpdate={setToUpdate}
+                    blockly={inputType === "blockly"}
+                />}
+            </div>
+            <div id='output'>
+                {isSmallScreen && <hr/>}
+                {
+                    error ? <>
+                        <p id='error-text'>{error}</p>
+                    </> : showMatches && <>
+                        <h2>Looking for matches in:</h2>
+                        <TextOutput html={data['string HTML']}/>
+                        <h2>Using regex:</h2>
+                        <RegexDisplay regex={data?.regex}/>
+                        <h2>Matches:</h2>
+                        <Matches matches={data?.matches}/>
+                    </>
+                }
+                {(mode === 'replace' && !error) && <>
+                    <hr />
+                    <h2>Replaced String:</h2>
+                    <pre>{data?.replaced}</pre>
+                </>}
+                {(mode === 'split' && !error) && <>
+                    <hr />
+                    <h2>Split String:</h2>
+                    {data?.split.map((i) =>
+                        <pre>{i}</pre>
+                    )}
+                </>}
+            </div>
         </div>
     );
 }

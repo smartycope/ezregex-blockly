@@ -8,7 +8,7 @@ const getVar = (block, name='VAR') => block.workspace.getVariableMap().getVariab
 
 const serializers = {
 // custom
-    "string": (blk, gen) => "'" + blk.getFieldValue('INPUT') + "'",
+    "string": (blk, gen) => "'" + blk.getFieldValue('INPUT').replace('\\', '\\\\').replace("'", "\\'") + "'",
     "setVar": (blk, gen) => `${getVar(blk)} = `,
     "getVar": (blk, gen) => `${getVar(blk)}`,
     "compiler": (blk, gen) => `pattern = `,

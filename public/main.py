@@ -7,6 +7,8 @@ import json
 
 import ezregex.python as python_dialect
 import ezregex.perl as perl_dialect
+import ezregex.javascript as javascript_dialect
+import ezregex.R as R_dialect
 from ezregex import api, __version__ as ezregex_version
 print('ezregex version', ezregex_version)
 
@@ -15,6 +17,8 @@ import re
 dialects = {
     'python': python_dialect,
     'perl': perl_dialect,
+    'javascript': javascript_dialect,
+    'R': R_dialect,
 }
 dialect = 'python'
 

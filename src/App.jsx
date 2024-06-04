@@ -48,7 +48,8 @@ function DialectPicker({setDialect}){
             <select name="input-type" id='input-type-selector' required onChange={handleChange}>
                 <option value="python">Python</option>
                 <option value="javascript">JavaScript (expiremental)</option>
-                {/* <option value="perl">Perl (expiremental)</option> */}
+                <option value="R">R (Limited)</option>
+                <option value="perl">Perl (Limited)</option>
             </select>
             <br/>
         </span>
@@ -120,31 +121,32 @@ function PatternInput({text, setCode, setToUpdate, setInputType, blockly=false})
             ></textarea>
         </>
     else
-    return <>
-        {label}
-        <Editor
-            height="100px"
-            defaultLanguage="python"
-            beforeMount={handleEditorWillMount}
-            onChange={(val, evt) => {setCode(val); setToUpdate(true)}}
-            defaultValue={text.length ? text : undefined}
-            theme="vs-dark"
-            // keepCurrentModel={true} // This is probably unnecissary?
-            options={{
-                wordWrap: 'on',
-                minimap: {
-                    enabled: false,
-                },
-                links: false,
-                // quickSuggestions: {
-                //     strings
-                // }
-                scrollbar: {
-                    horizontal: 'hidden',
-                }
-            }}
-        />
-    </>
+        return <>
+            {label}
+            <Editor
+                height="100px"
+                defaultLanguage="python"
+                beforeMount={handleEditorWillMount}
+                onChange={(val, evt) => {setCode(val); setToUpdate(true)}}
+                defaultValue={text.length ? text : undefined}
+                theme="vs-dark"
+                // keepCurrentModel={true} // This is probably unnecissary?
+                options={{
+                    wordWrap: 'on',
+                    minimap: {
+                        enabled: false,
+                    },
+                    links: false,
+                    // quickSuggestions: {
+                    //     strings
+                    // }
+                    scrollbar: {
+                        horizontal: 'hidden',
+                    }
+                }}
+            />
+            {/* <button></button> */}
+        </>
 }
 
 function ReplacementInput({text, setReplaceCode, setToUpdate, blockly=false}){
@@ -333,7 +335,7 @@ export default function App() {
             <div id='input'>
                 <span className='spread'>
                     <ModePicker setMode={setMode}/>
-                    <DialectPicker setDialect={setDialect}/>
+                    <DialectPicker setDialect={to => {setDialect(to); setToUpdate(true)}}/>
                 </span>
                 {input}
                 <TextInput generated={data?.string} text={text} setText={setText} setToUpdate={setToUpdate}/>

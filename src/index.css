@@ -240,10 +240,14 @@ input[type="radio"] {
 
 h1{
     padding-left: 10%;
+    padding-bottom: 0px;
+    /* height: 80px; */
 }
 
 #logo-holder{
     /* position: absolute; */
+    /* overflow-x: ; */
+
     /* padding-top: 160px;
     padding-left: 60px;
     z-index: -1;

@@ -5,11 +5,11 @@ import Editor from '@monaco-editor/react';
 import { send_js2py } from './communication';
 
 
-function InputPicker({setInputType}){
+function InputPicker({setInputType, inputType}){
     const handleChange = e => setInputType(e.target.value)
     return <span id='input-picker'>
             <label htmlFor="input-type-selector">Input method:</label>
-            <select name="input-type" id='input-type-selector' required onChange={handleChange}>
+            <select name="input-type" id='input-type-selector' required onChange={handleChange} defaultChecked={inputType}>
                 <option value="blocks">Blocks</option>
                 <option value="manual">Manual</option>
                 {/* <option value="generate">Auto-Generate</option> */}
@@ -57,7 +57,7 @@ function DialectPicker({setDialect}){
 
 function PatternInput({text, setCode, setToUpdate, setInputType, blockly=false}){
     function handleEditorWillMount(monaco) {
-        monaco.languages.registerCompletionItemProvider('python', {
+        monaco?.languages.registerCompletionItemProvider('python', {
             provideCompletionItems: () => {
                 return {
                     suggestions: [{
@@ -72,27 +72,27 @@ function PatternInput({text, setCode, setToUpdate, setInputType, blockly=false})
                 }
             }
         })
-        monaco.languages.registerCodeLensProvider('python', {
-            provideCodeLenses: () => {
-                return {
-                    lenses:[{
-                        id: 'test',
-                        command: {
-                            arguments: ['testarg1', 'testarg2'],
-                            id: 'test',
-                            title: 'test title',
-                            tooltip: 'test tooltip',
-                        },
-                        range: {
-                            endColumn: 50,
-                            startColumn: 0,
-                            startLineNumber: 0,
-                            endLineNumber: 50,
-                        }
-                    }]
-                }
-            }
-        })
+        // monaco.languages.registerCodeLensProvider('python', {
+        //     provideCodeLenses: () => {
+        //         return {
+        //             lenses:[{
+        //                 id: 'test',
+        //                 command: {
+        //                     arguments: ['testarg1', 'testarg2'],
+        //                     id: 'test',
+        //                     title: 'test title',
+        //                     tooltip: 'test tooltip',
+        //                 },
+        //                 range: {
+        //                     endColumn: 50,
+        //                     startColumn: 0,
+        //                     startLineNumber: 0,
+        //                     endLineNumber: 50,
+        //                 }
+        //             }]
+        //         }
+        //     }
+        // })
         // monaco.languages.python.pythonDefaults.addExtraLib([
         //     'def testFunc(paramA, paramB:int) -> str:',
         //     '     """ testFunc doc string """',
@@ -324,7 +324,7 @@ export default function App() {
             break
         case "generate":
             input = <>
-                <InputPicker setInputType={setInputType}/>
+                <InputPicker setInputType={setInputType} inputType={inputType}/>
                 <p>Auto-Generation is not supported in the updated website yet. It is in the old version: <a href="https://ezregex.streamlit.app/">ezregex.streamlit.app</a></p>
             </>
             break

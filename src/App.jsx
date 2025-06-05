@@ -1,6 +1,6 @@
 /* eslint-disable default-case */
 import React, { useEffect, useState } from 'react';
-import BlocklyComponent from "./BlocklyComponent"
+import BlocklyComponent from "./components/BlocklyComponent"
 import { send_js2py } from './communication';
 
 // Import components

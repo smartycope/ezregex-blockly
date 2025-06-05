@@ -1,11 +1,11 @@
 import * as Blockly from 'blockly';
-import blocks from './blocks';
+import blocks from '../blocks';
 // import forBlock from './generators/ezregex';
-import {save, load} from './serialization';
-import ezregexGenerator from './ezregex';
-import forBlock from './generators'
-import toolbox from './toolbox';
-import './index.css';
+import {save, load} from '../serialization';
+import ezregexGenerator from '../ezregex';
+import forBlock from '../generators'
+import toolbox from '../toolbox';
+import '../index.css';
 import { useEffect, useRef, useState } from 'react';
 
 

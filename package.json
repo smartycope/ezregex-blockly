@@ -1,15 +1,16 @@
 {
   "name": "ezregex-blockly",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "homepage": "https://ezregex.org",
   "description": "A readable and intuitive way to generate Regular Expressions",
-  "main": "index.js",
+  "main": "index.jsx",
   "private": true,
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "vite",
+    "dev": "vite --host",
+    "preview": "vite preview",
+    "build": "vite build",
+    "test": "vitest",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
@@ -19,17 +20,25 @@
   "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.5.1",
     "css-loader": "^6.7.1",
     "gh-pages": "^6.1.1",
     "html-webpack-plugin": "^5.5.0",
     "source-map-loader": "^4.0.1",
     "style-loader": "^3.3.1",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.2",
     "webpack": "^5.76.0",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.11.1"
   },
+  "type": "module",
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@monaco-editor/react": "^4.6.0",
+    "@mui/icons-material": "^7.1.1",
+    "@mui/material": "^7.1.1",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -43,7 +52,6 @@
     "react-dnd-touch-backend": "^16.0.1",
     "react-dom": "^18.2.0",
     "react-radio-buttons": "^1.2.2",
-    "react-scripts": "^5.0.1",
     "web-vitals": "^2.1.4"
   },
   "eslintConfig": {

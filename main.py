@@ -103,6 +103,9 @@ def update(pattern, replacement_pattern=None, text=None):
     replacement = None
     if len(pattern):
         pattern = run_code(pattern)
+    else:
+        return
+
     if replacement_pattern is not None:
         replacement = run_code(replacement_pattern, replacement=True)
 

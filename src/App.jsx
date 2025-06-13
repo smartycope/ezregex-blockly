@@ -20,7 +20,7 @@ import ReplacedStringDisplay from './components/ReplacedStringDisplay';
 import DataContext from './DataContext';
 import MyToolbar from './components/Toolbar';
 import SplitStringDisplay from './components/SplitStringDisplay';
-
+import Link from '@mui/material/Link'
 
 function InputPanel(){
     const {mode, inputType } = useContext(DataContext)
@@ -95,8 +95,8 @@ function AppContent() {
         send_js2py('set_dialect', to)
     }
 
+    // Set up communication with the python script
     useEffect(() => {
-        // Set up communication with the python script
         const py2js = document.querySelector('#py2js')
         const func = e => {
             switch (e.detail[0]){
@@ -106,6 +106,10 @@ function AppContent() {
                     break
                 case "error":
                     setError(e.detail[1])
+                    break
+                // The script is loaded, we can update now
+                case "loaded":
+                    setToUpdate(true)
                     break
                 default:
                     console.error(`Recieved unknown signal from py2js: ${e.detail[0]}`)
@@ -180,6 +184,19 @@ function AppContent() {
                     <ResultsPanel/>
                 </Box>
             </Grid>
+            <footer>
+                <br/>
+                <Typography variant="caption" color="secondary">
+                    EZRegex is an open source project.{' '}
+                    <Link color="inherit" href="https://github.com/smartycope/ezregex-blockly">
+                        Source code
+                    </Link>
+                </Typography>
+                <br/>
+                <Typography variant="caption" color="secondary" id='version-caption'>
+                    Loading...
+                </Typography>
+            </footer>
         </Box>
         </DataContext.Provider>
     );

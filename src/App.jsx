@@ -1,240 +1,71 @@
 /* eslint-disable default-case */
-import React, { useEffect, useState } from 'react';
-import BlocklyComponent from "./BlocklyComponent"
-import Editor from '@monaco-editor/react';
+import React, { useEffect, useState, useContext } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline'
+import Container from '@mui/material/Container'
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
 import { send_js2py } from './communication';
+import theme from './theme';
+import ReplacementBox from './components/ReplacementBox';
+import TextInput from './components/TextInput';
+import ResultBox from './components/ResultBox';
+import CompiledRegexResultBox from './components/CompiledRegexResultBox';
+import MatchesDisplay from './components/MatchesDisplay';
+import MonacoComponent from './components/MonacoComponent';
+import BlocklyComponent from './components/BlocklyComponent';
+import ReplacedStringDisplay from './components/ReplacedStringDisplay';
+import DataContext from './DataContext';
+import MyToolbar from './components/Toolbar';
+import SplitStringDisplay from './components/SplitStringDisplay';
 
 
-function InputPicker({setInputType, inputType}){
-    const handleChange = e => setInputType(e.target.value)
-    return <span id='input-picker'>
-            <label htmlFor="input-type-selector">Input method:</label>
-            <select name="input-type" id='input-type-selector' required onChange={handleChange} defaultChecked={inputType}>
-                <option value="blocks">Blocks</option>
-                <option value="manual">Manual</option>
-                {/* <option value="generate">Auto-Generate</option> */}
-            </select>
-            <br/>
-        </span>
+function InputPanel(){
+    const {mode, inputType } = useContext(DataContext)
+    return (
+        <Paper elevation={3} sx={{
+            p: 3,
+            mb: 4,
+            width: '100%',
+            height: '100%',
+            boxSizing: 'border-box'
+        }}>
+            {inputType === "blocks" && <BlocklyComponent/>}
+            {inputType === "manual" && <MonacoComponent/>}
+            {mode === 'replace' && inputType === "manual" && <ReplacementBox/>}
+            <TextInput/>
+        </Paper>
+    )
 }
 
-function ModePicker({setMode}){
-    const handleChange = e => setMode(e.target.value)
-    return <span>
-        <label htmlFor="radio-group">Mode:</label>
-        <div id="radio-group">
-            <span className='radio-container'>
-                <input type="radio" id="Search" name="mode" value="search" defaultChecked onChange={handleChange}/>
-                <label htmlFor="Search">Search</label>
-            </span>
-
-            <span className='radio-container'>
-                <input type="radio" id="replace" name="mode" value="replace" onChange={handleChange}/>
-                <label htmlFor="replace">Replace</label>
-            </span>
-
-            <span className='radio-container'>
-                <input type="radio" id="Split" name="mode" value="split" onChange={handleChange}/>
-                <label htmlFor="Split">Split</label>
-            </span>
-        </div>
-    </span>
+function ResultsPanel(){
+    const {data, error, showMatches, mode} = useContext(DataContext)
+    return (
+        <Paper elevation={3} sx={{
+            p: 3,
+            height: '100%',
+            width: '100%',
+            boxSizing: 'border-box'
+        }}>
+            {/* Just the error message, if there is one */}
+            {error && <Typography color="error" variant="body1">{error}</Typography>}
+            {/* Just the empty message, if we're empty */}
+            {!error && !showMatches && <Typography variant="body1" color="text.secondary" fontStyle="italic">No pattern specified</Typography>}
+            {/* The actual results */}
+            {!error && showMatches && <Box>
+                <ResultBox/>
+                <CompiledRegexResultBox/>
+                <MatchesDisplay/>
+                {mode === 'replace' && data?.replaced && <ReplacedStringDisplay/>}
+                {mode === 'split' && data?.split && <SplitStringDisplay/>}
+            </Box>}
+        </Paper>
+    )
 }
 
-function DialectPicker({setDialect}){
-    const handleChange = e => setDialect(e.target.value)
-    return <span id="dialect-picker">
-            <label htmlFor="input-type-selector">Regex Dialect:</label>
-            <select name="input-type" id='input-type-selector' required onChange={handleChange}>
-                <option value="python">Python</option>
-                <option value="javascript">JavaScript (expiremental)</option>
-                <option value="R">R (Limited)</option>
-                <option value="perl">Perl (Limited)</option>
-            </select>
-            <br/>
-        </span>
-}
-
-function PatternInput({text, setCode, setToUpdate, setInputType, blockly=false}){
-    function handleEditorWillMount(monaco) {
-        monaco?.languages.registerCompletionItemProvider('python', {
-            provideCompletionItems: () => {
-                return {
-                    suggestions: [{
-                        label: 'digit',
-                        kind: monaco.languages.CompletionItemKind.Function,
-                        documentation: 'A single digit',
-                        detail: "\\d",
-                        insertText: "digit",
-                        commitCharacters: [' ', '+'],
-                        additionalTextEdits: {forceMoveMarkers: true},
-                    }]
-                }
-            }
-        })
-        // monaco.languages.registerCodeLensProvider('python', {
-        //     provideCodeLenses: () => {
-        //         return {
-        //             lenses:[{
-        //                 id: 'test',
-        //                 command: {
-        //                     arguments: ['testarg1', 'testarg2'],
-        //                     id: 'test',
-        //                     title: 'test title',
-        //                     tooltip: 'test tooltip',
-        //                 },
-        //                 range: {
-        //                     endColumn: 50,
-        //                     startColumn: 0,
-        //                     startLineNumber: 0,
-        //                     endLineNumber: 50,
-        //                 }
-        //             }]
-        //         }
-        //     }
-        // })
-        // monaco.languages.python.pythonDefaults.addExtraLib([
-        //     'def testFunc(paramA, paramB:int) -> str:',
-        //     '     """ testFunc doc string """',
-        //     '    ...',
-        //     '}',
-        // ].join('\n'), 'filename/facts.pyi');
-    }
-
-    const label = <span className='spread'>
-        <label htmlFor="patternInput">EZRegex Pattern:</label>
-        <InputPicker setInputType={setInputType}/>
-    </span>
-
-    if (blockly)
-        return <>
-            {label}
-            <textarea
-                id='patternInput'
-                autoComplete='off'
-                autoCorrect='off'
-                autoCapitalize='off'
-                wrap="soft"
-                rows={text?.split('\n').length}
-                value={text.length ? text : undefined}
-                readOnly={true}
-            ></textarea>
-        </>
-    else
-        return <>
-            {label}
-            <Editor
-                height="100px"
-                defaultLanguage="python"
-                beforeMount={handleEditorWillMount}
-                onChange={(val, evt) => {setCode(val); setToUpdate(true)}}
-                defaultValue={text.length ? text : undefined}
-                theme="vs-dark"
-                // keepCurrentModel={true} // This is probably unnecissary?
-                options={{
-                    wordWrap: 'on',
-                    minimap: {
-                        enabled: false,
-                    },
-                    links: false,
-                    // quickSuggestions: {
-                    //     strings
-                    // }
-                    scrollbar: {
-                        horizontal: 'hidden',
-                    }
-                }}
-            />
-            {/* <button></button> */}
-        </>
-}
-
-function ReplacementInput({text, setReplaceCode, setToUpdate, blockly=false}){
-    const props = {
-        id: 'replacementInput',
-        autoComplete: 'off',
-        autoCorrect: 'off',
-        autoCapitalize: 'off',
-        wrap: "soft",
-        rows: text?.split('\n').length,
-    }
-    const label = <label htmlFor="replacementInput">Replacement EZRegex Pattern:</label>
-
-    if (blockly)
-        return <>
-            {label}
-            <textarea {...props}
-                value={text.length ? text : undefined}
-                readOnly={true}
-            ></textarea>
-        </>
-    else
-        return <>
-            {label}
-            <textarea {...props}
-                onChange={e => {setReplaceCode(e.target.value); setToUpdate(true)}}
-                defaultValue={text.length ? text : undefined}
-            ></textarea>
-        </>
-}
-
-function TextInput({generated, text, setText, setToUpdate}){
-    return <>
-            <label htmlFor="textInput">String to match against:</label>
-            <textarea
-                id='textInput'
-                rows={text?.split('\n').length}
-                placeholder={text.length ? text : (generated ? generated : "Leave empty to generate an example")}
-                onChange={e => { setText(e.target.value); setToUpdate(true) }}
-                autoComplete='off'
-                autoCorrect='off'
-                autoCapitalize='off'
-                defaultValue={text.length ? text : undefined}
-            ></textarea>
-        </>
-}
-
-function TextOutput({html}){
-    return <pre id="textOutput" dangerouslySetInnerHTML={{__html: html}}></pre>
-}
-
-function RegexDisplay({regex}){
-    // return <pre id="regexOutput"><code>{regex}</code></pre>;
-    return <div id="regexOutput">
-        <code id='regex-code'>{regex}</code>
-        <button id='copy-button' onClick={() => navigator.clipboard.writeText(regex)}>Copy</button>
-    </div>
-}
-
-function Matches({matches}){
-    function groups(group, key){
-        return Object.entries(group[key]).map(([id, g]) => (
-            <span id='groups-line' key={`span-${key}-${id}`}>
-                <strong key={`strong-${key}-${id}`}>{id}:</strong>
-                <pre className='group' key={`pre-${key}-${id}`} style={{backgroundColor: g.color}}>
-                    {g.string}
-                </pre>
-                <em key={`em-${key}-${id}`}> {`(${group.match.start}:${group.match.end})`}</em>
-            </span>
-        ))
-    }
-    return matches.map(group => (<>
-        <details key={`group-${group.match.start}-${group.match.end}`}>
-            <summary key={`summary-${group.match.start}-${group.match.end}`}>
-                <pre dangerouslySetInnerHTML={{__html: group.match['string HTML']}} key={`pre-${group.match.start}-${group.match.end}`}></pre>
-                <em key={`em-${group.match.start}-${group.match.end}`}>{`(${group.match.start}:${group.match.end})`}</em>
-            </summary>
-            <div className='group-contents' key={`div-${group.match.start}-${group.match.end}`}>
-                <h3 key={`h3-${group.match.start}-${group.match.end}`}>Unnamed Groups</h3>
-                {groups(group, 'unnamed groups')}
-                <h3 key={`h3-2-${group.match.start}-${group.match.end}`}>Named Groups</h3>
-                {groups(group, 'named groups')}
-            </div>
-        </details>
-    </>))
-}
-
-export default function App() {
+function AppContent() {
     const [code, setCode] = useState('')
     const [replaceCode, setReplaceCode] = useState('')
     const [data, setData] = useState(null)
@@ -311,68 +142,56 @@ export default function App() {
         setToUpdate(false)
     }
 
-    var input
-    switch (inputType){
-        case "blocks":
-            input = <>
-                    <BlocklyComponent setCodes={setCodes} text={text} setToUpdate={setToUpdate} replaceMode={mode === 'replace'}/>
-                    <PatternInput text={code} blockly={true} setInputType={setInputType}/>
-                </>
-            break
-        case "manual":
-            input = <PatternInput text={code} setCode={setCode} setToUpdate={setToUpdate} setInputType={setInputType}/>
-            break
-        case "generate":
-            input = <>
-                <InputPicker setInputType={setInputType} inputType={inputType}/>
-                <p>Auto-Generation is not supported in the updated website yet. It is in the old version: <a href="https://ezregex.streamlit.app/">ezregex.streamlit.app</a></p>
-            </>
-            break
-    }
-
     return (
-        <div className="App">
-            <div id='input'>
-                <span className='spread'>
-                    <ModePicker setMode={setMode}/>
-                    <DialectPicker setDialect={to => {setDialect(to); setToUpdate(true)}}/>
-                </span>
-                {input}
-                <TextInput generated={data?.string} text={text} setText={setText} setToUpdate={setToUpdate}/>
-                {(mode === 'replace') && <ReplacementInput
-                    text={replaceCode}
-                    setReplaceCode={setReplaceCode}
-                    setToUpdate={setToUpdate}
-                    blockly={inputType === "blockly"}
-                />}
-            </div>
-            <div id='output'>
-                {isSmallScreen && <hr/>}
-                {
-                    error ? <>
-                        <p id='error-text'>{error}</p>
-                    </> : showMatches && <>
-                        <h2>Looking for matches in:</h2>
-                        <TextOutput html={data['string HTML']}/>
-                        <h2>Using regex:</h2>
-                        <RegexDisplay regex={data?.regex}/>
-                        <h2>Matches:</h2>
-                        <Matches matches={data?.matches}/>
-                    </>
-                }
-                {(mode === 'replace' && !error) && <>
-                    <hr />
-                    <h2>Replaced String:</h2>
-                    <pre>{data?.replaced}</pre>
-                </>}
-                {(mode === 'split' && !error) && <>
-                    <hr />
-                    <h2>Split String:</h2>
-                    {data?.split.map((i) =>
-                        <pre>{i}</pre>
-                    )}
-                </>}
-            </div>
-        </div>
+        <DataContext.Provider value={{
+            code,
+            replaceCode,
+            data,
+            text,
+            error,
+            mode,
+            dialect,
+            inputType,
+            needsUpdate,
+            isSmallScreen,
+            showMatches,
+            setDialect,
+
+            setCode,
+            setCodes,
+            setReplaceCode,
+            setData,
+            setText,
+            setError,
+            setMode,
+            setDialectState,
+            setInputType,
+            setToUpdate,
+            setIsSmallScreen,
+         }}>
+        <Box>
+            <MyToolbar/>
+            <Grid container spacing={3}>
+                <Box sx={{ width: isSmallScreen ? '100%' : '60%' }}>
+                    <InputPanel/>
+                </Box>
+                {/* Why 37 instead of 40, I don't know */}
+                <Box sx={{ width: isSmallScreen ? '100%' : '37%' }}>
+                    <ResultsPanel/>
+                </Box>
+            </Grid>
+        </Box>
+        </DataContext.Provider>
+    );
+}
+
+export default function App() {
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Container maxWidth="xl" sx={{ py: 4 }}>
+                <AppContent />
+            </Container>
+        </ThemeProvider>
     );
 }

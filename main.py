@@ -10,9 +10,9 @@ import ezregex.perl as perl_dialect
 import ezregex.javascript as javascript_dialect
 import ezregex.R as R_dialect
 from ezregex import api, __version__ as ezregex_version
-print('ezregex version', ezregex_version)
+print('ezregex v', ezregex_version, sep='')
 
-import re
+# import re
 
 dialects = {
     'python': python_dialect,
@@ -26,8 +26,8 @@ error = window.console.error
 info = window.console.info
 debug = window.console.debug
 
-patternInput = document.querySelector('#patternInput')
-replacementInput = document.querySelector('#replacementInput')
+# patternInput = document.querySelector('#patternInput')
+# replacementInput = document.querySelector('#replacementInput')
 
 
 def formatInput2code(s):
@@ -42,7 +42,7 @@ def formatInput2code(s):
     return '\n'.join(lines)
 
 def run_code(pattern, replacement=False):
-    debug('run_code called')
+    # debug('run_code called')
     error: Exception
     prefix = 'Error'
     # Run the code, get the var, and get the JSON search info
@@ -74,7 +74,7 @@ def run_code(pattern, replacement=False):
     err_msg += '\n' + str(error.with_traceback(None))
 
     send_data('error', err_msg)
-    debug('run_code finished')
+    # debug('run_code finished')
     return None
 
 def set_dialect(to):
@@ -83,7 +83,7 @@ def set_dialect(to):
 
 @when('custom', '#js2py')
 def recieve_data(event):
-    debug('recieve_data called with', event)
+    # debug('recieve_data called with', event)
     signal, data = event.detail
     match signal:
         case "update":
@@ -94,12 +94,11 @@ def recieve_data(event):
             error("line 96 ish: Python script recieved unknown signal from js2py element: `{signal}` with data:\n{data}")
 
 def update(pattern, replacement_pattern=None, text=None):
-    debug('update called')
-    debug(f'pattern = `{pattern}`\nreplacement_pattern = `{replacement_pattern}`\ntext = `{text}`')
+    # debug('update called')
+    # debug(f'pattern = `{pattern}`\nreplacement_pattern = `{replacement_pattern}`\ntext = `{text}`')
     if text is not None and not len(text.strip()):
         text = None
 
-    debug('here 1')
     replacement = None
     if len(pattern):
         pattern = run_code(pattern)
@@ -109,7 +108,6 @@ def update(pattern, replacement_pattern=None, text=None):
     if replacement_pattern is not None:
         replacement = run_code(replacement_pattern, replacement=True)
 
-    debug('here 2')
     if pattern is None:
         send_data('error', 'Could not compile pattern')
         return
@@ -117,11 +115,10 @@ def update(pattern, replacement_pattern=None, text=None):
         send_data('error', 'Could not compile replacement pattern')
         return
 
-    debug('here 3')
     try:
         data = api(pattern, replacement, text)
     except NotImplementedError as err:
-        send_data('error', 'Not Implemented: Unable to invert pattern, try providing text to search')
+        send_data('error', 'Unable to invert pattern, try providing text to search')
     except Exception as err:
         error("line 123 ish: Python script handled error when compiling EZRegex pattern:\n", str(err))
         # send_data('error', f'Error on line {err.__traceback__.tb_lineno}: {err}')
@@ -130,15 +127,11 @@ def update(pattern, replacement_pattern=None, text=None):
     else:
         send_data('response', json.dumps(data))
 
-    debug('update finished')
-
-if patternInput:
-    update(patternInput.value, replacementInput.value if replacementInput else None)
-else:
-    error('line -7 ish: Warning: Python script couldnt find #patternInput')
+# Tell the JS we're loaded, so they can call for an update from us
+send_data('loaded', None)
 
 try:
     version_caption = document.querySelector('#version-caption')
-    version_caption.innerText = f'Copeland Carter | v{ezregex_version}'
+    version_caption.innerText = f'Copeland Carter | EZRegex v{ezregex_version}'
 except Exception as err:
     error('line -1: Python Script: Somehow we couldnt find #version-caption')

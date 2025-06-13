@@ -1,13 +1,13 @@
 import * as Blockly from 'blockly';
 import blocks from '../blocks';
-// import forBlock from './generators/ezregex';
 import {save, load} from '../serialization';
 import ezregexGenerator from '../ezregex';
 import forBlock from '../generators'
 import toolbox from '../toolbox';
 import '../index.css';
 import { useEffect, useRef, useState } from 'react';
-
+import { useContext } from 'react';
+import DataContext from '../DataContext';
 
 const theme = {
     'base': Blockly.Themes.Classic,
@@ -23,6 +23,17 @@ const theme = {
 }
 
 Blockly.FieldTextInput.prototype.spellcheck_ = false
+
+const modifyCode = (code) => {
+    // ensure pattern is the last assignment
+    const patternAssignment = code.match(/^pattern = (.*)\n/m)
+    if (patternAssignment){
+        code = code.replace(patternAssignment[0], '')
+        code += '\npattern = ' + patternAssignment[1]
+    }
+    return code
+}
+
 
 // Returns an array of objects.
 var patternsFlyoutCallback = function(workspace) {
@@ -84,7 +95,8 @@ Blockly.Extensions.register('one_var_at_a_time', function() {
 Blockly.Extensions.register('remove_plus', function() { this.removePlus = true })
 
 
-export default function BlocklyComponent({setToUpdate, setCodes, replaceMode}){
+export default function BlocklyComponent(){
+    const {mode, setToUpdate, setCodes} = useContext(DataContext)
     const blocklyDiv = useRef()
     const [workspace, setWorkspace] = useState(null)
 
@@ -109,7 +121,7 @@ export default function BlocklyComponent({setToUpdate, setCodes, replaceMode}){
         // This function resets the code and output divs, shows the
         // generated code from the workspace, and evals the code.
         const runCode = () => {
-            const code = ezregexGenerator.workspaceToCode(ws);
+            const code = modifyCode(ezregexGenerator.workspaceToCode(ws));
             setCodes(code)
             setToUpdate(true)
         };
@@ -149,7 +161,7 @@ export default function BlocklyComponent({setToUpdate, setCodes, replaceMode}){
         save(workspace)
         load(workspace)
     }
-    if (replaceMode && (workspace?.getBlocksByType('replacementCompiler') < 1)){
+    if (mode === 'replace' && (workspace?.getBlocksByType('replacementCompiler') < 1)){
         console.log("Creating replacementCompiler block");
         const blk = workspace.newBlock('replacementCompiler')
         blk.setDeletable(false)
@@ -162,7 +174,7 @@ export default function BlocklyComponent({setToUpdate, setCodes, replaceMode}){
         load(workspace)
     }
     // Remove the replacementCompiler if we're not in replacement mode
-    if (!replaceMode){
+    if (mode !== 'replace'){
         workspace?.getBlocksByType('replacementCompiler').forEach(element => {
             element.dispose()
         });

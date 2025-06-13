@@ -21,6 +21,15 @@ body {
     */
 }
 
+
+.monaco-editor {
+    padding: 10px;
+    border-radius: 8px;
+    /* margin: 10px; */
+    /* margin-top: 10px; */
+    /* margin-bottom: 10px; */
+}
+
 /* Responsive container */
 .container {
     width: 100%;

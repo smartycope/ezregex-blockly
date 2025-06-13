@@ -1,20 +1,71 @@
 /* eslint-disable default-case */
-import React, { useEffect, useState } from 'react';
-import BlocklyComponent from "./components/BlocklyComponent"
+import React, { useEffect, useState, useContext } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline'
+import Container from '@mui/material/Container'
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
 import { send_js2py } from './communication';
-
-// Import components
-import InputPicker from './components/InputPicker';
-import ModePicker from './components/ModePicker';
-import DialectPicker from './components/DialectPicker';
-import PatternInput from './components/PatternInput';
-import ReplacementInput from './components/ReplacementInput';
+import theme from './theme';
+import ReplacementBox from './components/ReplacementBox';
 import TextInput from './components/TextInput';
-import TextOutput from './components/TextOutput';
-import RegexDisplay from './components/RegexDisplay';
-import Matches from './components/Matches';
+import ResultBox from './components/ResultBox';
+import CompiledRegexResultBox from './components/CompiledRegexResultBox';
+import MatchesDisplay from './components/MatchesDisplay';
+import MonacoComponent from './components/MonacoComponent';
+import BlocklyComponent from './components/BlocklyComponent';
+import ReplacedStringDisplay from './components/ReplacedStringDisplay';
+import DataContext from './DataContext';
+import MyToolbar from './components/Toolbar';
+import SplitStringDisplay from './components/SplitStringDisplay';
 
-export default function App() {
+
+function InputPanel(){
+    const {mode, inputType } = useContext(DataContext)
+    return (
+        <Paper elevation={3} sx={{
+            p: 3,
+            mb: 4,
+            width: '100%',
+            height: '100%',
+            boxSizing: 'border-box'
+        }}>
+            {inputType === "blocks" && <BlocklyComponent/>}
+            {inputType === "manual" && <MonacoComponent/>}
+            {mode === 'replace' && inputType === "manual" && <ReplacementBox/>}
+            <TextInput/>
+        </Paper>
+    )
+}
+
+function ResultsPanel(){
+    const {data, error, showMatches, mode} = useContext(DataContext)
+    return (
+        <Paper elevation={3} sx={{
+            p: 3,
+            height: '100%',
+            width: '100%',
+            boxSizing: 'border-box'
+        }}>
+            {/* Just the error message, if there is one */}
+            {error && <Typography color="error" variant="body1">{error}</Typography>}
+            {/* Just the empty message, if we're empty */}
+            {!error && !showMatches && <Typography variant="body1" color="text.secondary" fontStyle="italic">No pattern specified</Typography>}
+            {/* The actual results */}
+            {!error && showMatches && <Box>
+                <ResultBox/>
+                <CompiledRegexResultBox/>
+                <MatchesDisplay/>
+                {mode === 'replace' && data?.replaced && <ReplacedStringDisplay/>}
+                {mode === 'split' && data?.split && <SplitStringDisplay/>}
+            </Box>}
+        </Paper>
+    )
+}
+
+function AppContent() {
     const [code, setCode] = useState('')
     const [replaceCode, setReplaceCode] = useState('')
     const [data, setData] = useState(null)
@@ -91,68 +142,56 @@ export default function App() {
         setToUpdate(false)
     }
 
-    var input
-    switch (inputType){
-        case "blocks":
-            input = <>
-                    <BlocklyComponent setCodes={setCodes} text={text} setToUpdate={setToUpdate} replaceMode={mode === 'replace'}/>
-                    <PatternInput text={code} blockly={true} setInputType={setInputType}/>
-                </>
-            break
-        case "manual":
-            input = <PatternInput text={code} setCode={setCode} setToUpdate={setToUpdate} setInputType={setInputType}/>
-            break
-        case "generate":
-            input = <>
-                <InputPicker setInputType={setInputType} inputType={inputType}/>
-                <p>Auto-Generation is not supported in the updated website yet. It is in the old version: <a href="https://ezregex.streamlit.app/">ezregex.streamlit.app</a></p>
-            </>
-            break
-    }
-
     return (
-        <div className="App">
-            <div id='input'>
-                <span className='spread'>
-                    <ModePicker setMode={setMode}/>
-                    <DialectPicker setDialect={to => {setDialect(to); setToUpdate(true)}}/>
-                </span>
-                {input}
-                <TextInput generated={data?.string} text={text} setText={setText} setToUpdate={setToUpdate}/>
-                {(mode === 'replace') && <ReplacementInput
-                    text={replaceCode}
-                    setReplaceCode={setReplaceCode}
-                    setToUpdate={setToUpdate}
-                    blockly={inputType === "blockly"}
-                />}
-            </div>
-            <div id='output'>
-                {isSmallScreen && <hr/>}
-                {
-                    error ? <>
-                        <p id='error-text'>{error}</p>
-                    </> : showMatches && <>
-                        <h2>Looking for matches in:</h2>
-                        <TextOutput html={data['string HTML']}/>
-                        <h2>Using regex:</h2>
-                        <RegexDisplay regex={data?.regex}/>
-                        <h2>Matches:</h2>
-                        <Matches matches={data?.matches}/>
-                    </>
-                }
-                {(mode === 'replace' && !error) && <>
-                    <hr />
-                    <h2>Replaced String:</h2>
-                    <pre>{data?.replaced}</pre>
-                </>}
-                {(mode === 'split' && !error) && <>
-                    <hr />
-                    <h2>Split String:</h2>
-                    {data?.split.map((i) =>
-                        <pre>{i}</pre>
-                    )}
-                </>}
-            </div>
-        </div>
+        <DataContext.Provider value={{
+            code,
+            replaceCode,
+            data,
+            text,
+            error,
+            mode,
+            dialect,
+            inputType,
+            needsUpdate,
+            isSmallScreen,
+            showMatches,
+            setDialect,
+
+            setCode,
+            setCodes,
+            setReplaceCode,
+            setData,
+            setText,
+            setError,
+            setMode,
+            setDialectState,
+            setInputType,
+            setToUpdate,
+            setIsSmallScreen,
+         }}>
+        <Box>
+            <MyToolbar/>
+            <Grid container spacing={3}>
+                <Box sx={{ width: isSmallScreen ? '100%' : '60%' }}>
+                    <InputPanel/>
+                </Box>
+                {/* Why 37 instead of 40, I don't know */}
+                <Box sx={{ width: isSmallScreen ? '100%' : '37%' }}>
+                    <ResultsPanel/>
+                </Box>
+            </Grid>
+        </Box>
+        </DataContext.Provider>
+    );
+}
+
+export default function App() {
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Container maxWidth="xl" sx={{ py: 4 }}>
+                <AppContent />
+            </Container>
+        </ThemeProvider>
     );
 }

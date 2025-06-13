@@ -21,6 +21,10 @@ body {
     */
 }
 
+/* Makes just the outside of the blockly workspace rounded */
+.injectionDiv {
+    border-radius: 8px;
+}
 
 .monaco-editor {
     padding: 10px;

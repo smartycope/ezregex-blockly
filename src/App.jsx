@@ -65,6 +65,10 @@ function ResultsPanel(){
     )
 }
 
+// TODO:
+// "<s" seems to break the looking for matches in box. Sanatize HTML needed?
+// add an option for "compiled regex, with EZRegex as a comment"
+
 function AppContent() {
     const [code, setCode] = useState('')
     const [replaceCode, setReplaceCode] = useState('')

@@ -1,7 +1,7 @@
 # EZRegex-Blockly
 This is the 2nd (2.5th?) version of the frontend for the [EZRegex library](https://pypi.org/project/ezregex/). The first version (which I'm planning to take down eventually, so this will break at some point) is at [ezregex.streamlit.app](https://ezregex.streamlit.app/). This version is a re-write of that, but using *proper* tools like [React](https://react.dev/) & [Blockly](https://developers.google.com/blockly/) instead of [streamlit](https://streamlit.io/) (I love streamlit, but it's not the end of the project).
 
-This repo is (will be) hosted on [ezregex.org](https://ezregex.org/)
+This repo is hosted on [ezregex.org](https://ezregex.org/)
 
 ## Running Locally
 Run locally for development

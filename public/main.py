@@ -5,22 +5,20 @@ from pyscript import window, document, when
 from pyscript.js_modules.communication import send_py2js as send_data # type: ignore
 import json
 
-import ezregex.python as python_dialect
-import ezregex.perl as perl_dialect
-import ezregex.javascript as javascript_dialect
-import ezregex.R as R_dialect
-from ezregex import api, __version__ as ezregex_version
-print('ezregex v', ezregex_version, sep='')
+import ezregex as ez
+from ezregex import api
+
+print('ezregex v', ez.__version__, sep='')
 
 # import re
 
 dialects = {
-    'python': python_dialect,
-    'perl': perl_dialect,
-    'javascript': javascript_dialect,
-    'R': R_dialect,
+    'Python': ez.python,
+    'PCRE2': ez.pcre2,
+    'JavaScript': ez.javascript,
+    'R': ez.r,
 }
-dialect = 'python'
+dialect = 'Python'
 
 error = window.console.error
 info = window.console.info
@@ -35,7 +33,7 @@ def formatInput2code(s):
     # s = re.sub((anyExcept('literal', type='.*')).str(), '"' + replace_entire.str() + '"', s)
     lines = s.splitlines()
     # Remove the last lines which are actually comments
-    while s.splitlines()[-1].strip().startswith('#'):
+    while lines[-1].strip().startswith('#'):
         lines.pop(-1)
     # Insert the variable assignment to the last line
     lines.append('\n_rtn = '  + lines.pop(-1))
@@ -132,6 +130,6 @@ send_data('loaded', None)
 
 try:
     version_caption = document.querySelector('#version-caption')
-    version_caption.innerText = f'Copeland Carter | EZRegex v{ezregex_version}'
+    version_caption.innerText = f'Copeland Carter | EZRegex v{ez.__version__}'
 except Exception as err:
     error('line -1: Python Script: Somehow we couldnt find #version-caption')

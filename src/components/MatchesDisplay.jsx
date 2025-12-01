@@ -9,6 +9,7 @@ import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
+import { Chip } from '@mui/material';
 
 
 
@@ -60,6 +61,7 @@ function Match({match, index, startOpen}){
         <Box sx={{ pl: 0, outline: '1px solid', borderRadius: '5px', margin: '2px'}} key={'box-' + k}>
         <ListItemButton key={'button-' + k} onClick={handleClick}>
             <ListItem key={'listitem-' + k}>
+                {/* <Chip label={index} /> */}
             <pre
                 dangerouslySetInnerHTML={{ __html: match.match['string HTML'] }}
                 style={{ margin: '0', borderRadius: '5px', paddingRight: '.25rem'}}
